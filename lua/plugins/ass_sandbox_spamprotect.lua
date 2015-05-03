@@ -91,7 +91,7 @@ if (SERVER) then
 		end
 		
 		if (DELAY != 0) then
-			if (!PLAYER:IsRespected() && PLAYER.ASS_SpamTimer[TYPE]) then
+			if (PLAYER.ASS_SpamTimer[TYPE]) then -- DarkRP compliance (!PLAYER:IsRespected() &&)
 			
 				if (	TYPE == "spawn" &&
 					(PLUGIN.IsDuplicatorRunning(PLAYER) ||
