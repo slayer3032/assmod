@@ -1,0 +1,22 @@
+Changed default writer to use user files instead of rank file.
+Moved all text files to assmod dir.
+Updated Assmod to use steamid64 instead of uniqueid.
+Removed UnbanTime from user files.
+Neutered Assmod's usage of UniqueID for SteamID64.
+Removed UniqueID and SteamID networkvars.
+Added os.time to the logfiles.
+Cleaned up user tables.
+Removed think hook player.GetAll.
+Changed player function SetLevel to SetAssLevel.
+Changed player function GetLevel to GetAssLevel.
+Changed player function HasLevel to HasAssLevel.
+Added SteamID to rank file.
+Created Default Banlist plugin.
+Added banlist config var.
+Overhauled kick/ban.
+Removed terrible source magic minute ban system.
+Added ASS_DropClient(uid, reason, ply).
+Added PlayerConnect/PlayerDisconnect gameevent plugin function calls.
+Deleted 100+ lines of unused code from ass_server.lua
+Moved writer/banlist commands to ass_plugins.lua
+Removed ass_cmd.lua
