@@ -642,6 +642,8 @@ function ASS_BanPlayer( PLAYER, UNIQUEID, TIME, REASON )
 			PlayerBans[TO_BAN:AssID()] = {}
 			PlayerBans[TO_BAN:AssID()].Name = TO_BAN:Nick()
 			PlayerBans[TO_BAN:AssID()].SteamID = TO_BAN:SteamID()
+			PlayerBans[TO_BAN:AssID()].AdminName = PLAYER:Nick()
+			PlayerBans[TO_BAN:AssID()].AdminID = PLAYER:SteamID()
 			PlayerBans[TO_BAN:AssID()].UnbanTime = os.time()+(TIME*60) --no more source magic minute, writeid bullshit
 			PlayerBans[TO_BAN:AssID()].Reason = REASON
 			ASS_SaveBanlist(TO_BAN:AssID())
@@ -782,6 +784,8 @@ concommand.Add( "ASS_UnbanList",
 				umsg.Start("ASS_BannedPlayer", pl)
 					umsg.String( entry.Name )
 					umsg.String( id )
+					umsg.String( entry.SteamID )
+					umsg.String( entry.AdminName )
 				umsg.End()
 			end
 			umsg.Start("ASS_ShowBannedPlayerGUI", pl)

@@ -826,9 +826,11 @@ usermessage.Hook( "ASS_BannedPlayer",
 				ASS_IncProgress("ASS_BannedPlayer")
 				local name = UM:ReadString()
 				local id = UM:ReadString()
+				local sid = UM:ReadString()
+				local aname = UM:ReadString()
 				
-				name = name .. " (" .. id .. ")"
-				table.insert( ASS_BannedPlayers, { Text = name, ID = id } )
+				name = name .. " (" .. sid .. ") *"..aname.."*"
+				table.insert( ASS_BannedPlayers, { Text = name, ID = id, SteamID = sid, AdminName = aname } )
 			end
 		)
 usermessage.Hook( "ASS_ShowBannedPlayerGUI", 

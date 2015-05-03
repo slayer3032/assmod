@@ -25,6 +25,8 @@ function PLUGIN.LoadBanlist()
 		bt[v.id] = {}
 		bt[v.id].Name = v.name
 		bt[v.id].SteamID = v.steamid
+		bt[v.id].AdminName = v.adminname
+		bt[v.id].AdminID = v.adminid
 		bt[v.id].UnbanTime = v.unbantime
 		bt[v.id].Reason	= v.reason
 	end
@@ -45,6 +47,8 @@ function PLUGIN.SaveBanlist(id)
 		r.ID = k
 		r.SteamID = v.SteamID
 		r.UnbanTime = v.UnbanTime
+		r.AdminName = v.AdminName
+		r.AdminID = v.AdminID
 		r.Reason = v.Reason
 		table.insert(bantbl, r)
 
