@@ -264,7 +264,7 @@ if (CLIENT) then
 		MENU:AddSubMenu("Temp Admin",	nil, function(NEWMENU) PLUGIN.DefNoClipAllowDisallow(NEWMENU, ASS_LVL_TEMPADMIN) end ):SetImage("icon16/asterisk_yellow.png")
 		MENU:AddSubMenu("Respected",	nil, function(NEWMENU) PLUGIN.DefNoClipAllowDisallow(NEWMENU, ASS_LVL_RESPECTED) end ):SetImage("icon16/award_star_gold_3.png")
 		MENU:AddSubMenu("Guest",	nil, function(NEWMENU) PLUGIN.DefNoClipAllowDisallow(NEWMENU, ASS_LVL_GUEST) end ):SetImage("icon16/user_gray.png")
-		MENU:AddSubMenu("Banned",	nil, function(NEWMENU) PLUGIN.DefNoClipAllowDisallow(NEWMENU, ASS_LVL_BANNED) end ):SetImage("icon16/user_delete.png")
+		MENU:AddSubMenu("Unwanted",	nil, function(NEWMENU) PLUGIN.DefNoClipAllowDisallow(NEWMENU, ASS_LVL_BANNED) end ):SetImage("icon16/user_delete.png")
 	end
 
 	function PLUGIN.AddMenu(DMENU)			

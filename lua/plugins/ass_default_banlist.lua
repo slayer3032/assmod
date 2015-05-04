@@ -24,7 +24,6 @@ function PLUGIN.LoadBanlist()
 	for k,v in pairs(bantable) do
 		bt[v.id] = {}
 		bt[v.id].Name = v.name
-		bt[v.id].SteamID = v.steamid
 		bt[v.id].AdminName = v.adminname
 		bt[v.id].AdminID = v.adminid
 		bt[v.id].UnbanTime = v.unbantime
@@ -45,7 +44,6 @@ function PLUGIN.SaveBanlist(id)
 		local r = {}
 		r.Name = v.Name
 		r.ID = k
-		r.SteamID = v.SteamID
 		r.UnbanTime = v.UnbanTime
 		r.AdminName = v.AdminName
 		r.AdminID = v.AdminID

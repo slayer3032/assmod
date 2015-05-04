@@ -7,59 +7,35 @@ ASS_LVL_SUPER_ADMIN	= 1
 ASS_LVL_ADMIN		= 2
 ASS_LVL_TEMPADMIN	= 3
 ASS_LVL_RESPECTED	= 4
-ASS_LVL_GUEST		= 5
+ASS_LVL_GUEST		= 5 -- do not change variable name, this is your default rank
 ASS_LVL_BANNED		= 255
 
-ASS_RANKS = {0, 1, 2, 3, 4, 5, 255}
-
-ASS_RANKNAMES = {}
-ASS_RANKNAMES[0] = "Server Owner"
-ASS_RANKNAMES[1] = "Super Admin"
-ASS_RANKNAMES[2] = "Admin"
-ASS_RANKNAMES[3] = "Temp Admin"
-ASS_RANKNAMES[4] = "Respected"
-ASS_RANKNAMES[5] = "Guest"
-ASS_RANKNAMES[255] = "Unwanted"
-
-LevelIcon = {}
-LevelIcon[0] = "icon16/lightning.png"
-LevelIcon[1] = "icon16/star.png"
-LevelIcon[2] = "icon16/shield.png"
-LevelIcon[3] = "icon16/asterisk_yellow.png"
-LevelIcon[4] = "icon16/award_star_gold_3.png"
-LevelIcon[5] = "icon16/user_gray.png"
-LevelIcon[255] = "icon16/user_delete.png"
+ASS_RANKS = {}
+ASS_RANKS[0] = {Name = "Server Owner", Icon = "icon16/lightning.png", SuperAdmin = true}
+ASS_RANKS[1] = {Name = "Super Admin", Icon = "icon16/star.png", SuperAdmin = true}
+ASS_RANKS[2] = {Name = "Admin", Icon = "icon16/shield.png", Admin = true}
+ASS_RANKS[3] = {Name = "Temp Admin", Icon = "icon16/asterisk_yellow.png", TempAdmin = true}
+ASS_RANKS[4] = {Name = "Respected", Icon = "icon16/award_star_gold_3.png", Respected = true}
+ASS_RANKS[5] = {Name = "User", Icon = "icon16/user_gray.png"}
+ASS_RANKS[255] = {Name = "Unwanted", Icon = "icon16/user_delete.png", Unwanted = true}
 
 ASS_VERSION = "Assmod 2.4"
-
---temp dev update code
-function player.GetBySteamID64( ID )
-	ID = tostring( ID )
-
-	for _, pl in pairs( player.GetAll() ) do
-		if ( pl:SteamID64() == ID )	then
-			return pl
-		end
-	end
-
-	return false
-end
 
 function ASS_Init_Shared()
 
 	local PLAYER = FindMetaTable("Player")
-	function PLAYER:IsSuperAdmin()	return self:GetNetworkedInt("ASS_isAdmin", 5) <= ASS_LVL_SUPER_ADMIN	end
-	function PLAYER:IsAdmin()	return self:GetNetworkedInt("ASS_isAdmin", 5) <= ASS_LVL_ADMIN		end
-	function PLAYER:IsTempAdmin()	return self:GetNetworkedInt("ASS_isAdmin", 5) <= ASS_LVL_TEMPADMIN	end
-	function PLAYER:IsRespected()	return self:GetNetworkedInt("ASS_isAdmin", 5) <= ASS_LVL_RESPECTED	end
+	function PLAYER:IsSuperAdmin()	return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= ASS_LVL_SUPER_ADMIN	end
+	function PLAYER:IsAdmin()	return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= ASS_LVL_ADMIN		end
+	function PLAYER:IsTempAdmin()	return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= ASS_LVL_TEMPADMIN	end
+	function PLAYER:IsRespected()	return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= ASS_LVL_RESPECTED	end
 
-	function PLAYER:IsGuest()	return self:GetNetworkedInt("ASS_isAdmin", 5) >= ASS_LVL_GUEST && self:GetNetworkedInt("ASS_isAdmin", 5) < ASS_LVL_BANNED end
-	function PLAYER:IsUnwanted()	return self:GetNetworkedInt("ASS_isAdmin", 5) >= ASS_LVL_BANNED end
+	function PLAYER:IsGuest()	return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) >= ASS_LVL_GUEST && self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) < ASS_LVL_BANNED end
+	function PLAYER:IsUnwanted()	return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) >= ASS_LVL_BANNED end
 
-	function PLAYER:GetAssLevel()		return self:GetNetworkedInt("ASS_isAdmin", 5)						end
-	function PLAYER:HasAssLevel(n)		return self:GetNetworkedInt("ASS_isAdmin", 5) <= n						end
-	function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= self:GetNetworkedInt("ASS_isAdmin") else return self:GetNetworkedInt("ASS_isAdmin", 5) <= PL2:GetNetworkedInt("ASS_isAdmin", 5)	end end
-	function PLAYER:GetTAExpiry(n)		return self:GetNetworkedFloat("ASS_tempAdminExpiry")	end
+	function PLAYER:GetAssLevel()		return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST)						end
+	function PLAYER:HasAssLevel(n)		return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= n						end
+	function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= self:GetNetworkedInt("ASS_isAdmin") else return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= PL2:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST)	end end
+	function PLAYER:GetTAExpiry(n)		return self:GetNetworkedFloat("ASS_tempAdminExpiry", 0)	end
 	function PLAYER:AssID()		return self:GetNetworkedString("ASS_AssID")	end
 	
 	function PLAYER:IsBetterOrSame(PL2) if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= self:GetNetworkedInt("ASS_isAdmin") else return self:GetNetworkedInt("ASS_isAdmin", 5) <= PL2:GetNetworkedInt("ASS_isAdmin", 5) end end
@@ -93,15 +69,12 @@ end
 
 function LevelToString( LEVEL, TIME )
 
-	if (LEVEL <= ASS_LVL_SERVER_OWNER) then					return "Server Owner";
-	elseif (LEVEL <= ASS_LVL_SUPER_ADMIN) then				return "Super Admin";
-	elseif (LEVEL <= ASS_LVL_ADMIN) then					return "Admin";
-	elseif (LEVEL <= ASS_LVL_TEMPADMIN) then				if (TIME) then return "Admin for " .. TIME else return "Temp Admin" end
-	elseif (LEVEL <= ASS_LVL_RESPECTED) then				return "Respected"
-	elseif (LEVEL >= ASS_LVL_GUEST && LEVEL < ASS_LVL_BANNED) then		return "Guest"
+	if TIME then
+		return ASS_RANKS[LEVEL].Name.." for "..TIME
 	else
-		return "Banned";	
+		return ASS_RANKS[LEVEL].Name
 	end
+	
 end
 
 function ASS_FormatText( TEXT )
@@ -174,6 +147,19 @@ else
          
         chat.AddText( unpack( args ) )
     end )
+end
+
+--temp dev update code
+function player.GetBySteamID64( ID )
+	ID = tostring( ID )
+
+	for _, pl in pairs( player.GetAll() ) do
+		if ( pl:SteamID64() == ID )	then
+			return pl
+		end
+	end
+
+	return false
 end
 
 IncludeSharedFile("ass_plugins.lua")

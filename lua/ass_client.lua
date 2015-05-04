@@ -116,19 +116,19 @@ end
 
 function ASS_AccessMenu( SUBMENU, PLAYER )
 
-	local icontbl = table.Copy(LevelIcon)
+	local icontbl = table.Copy(ASS_RANKS)
 	
-	if (LevelIcon[PLAYER:GetAssLevel() ]) then
-		icontbl[PLAYER:GetAssLevel()] = "icon16/tick.png"
+	if (ASS_RANKS[PLAYER:GetAssLevel()]) then
+		icontbl[PLAYER:GetAssLevel()].Icon = "icon16/tick.png"
 	end	
 
 	local Items = {}
 	
 	for k,v in pairs(ASS_RANKS) do
-		if ASS_RANKNAMES[v] == "Temp Admin" then
-			Items[v] = SUBMENU:AddSubMenu("Temp Admin", nil, function(NEWMENU) ASS_TempAdminMenu(NEWMENU, PLAYER) end):SetImage(icontbl[ASS_LVL_TEMPADMIN])
+		if v.Name == "Temp Admin" then
+			Items[k] = SUBMENU:AddSubMenu("Temp Admin", nil, function(NEWMENU) ASS_TempAdminMenu(NEWMENU, PLAYER) end):SetImage(icontbl[k].Icon)
 		else
-			Items[v] = SUBMENU:AddOption(ASS_RANKNAMES[v], function() ASS_SetAccess(PLAYER, v) end):SetImage(icontbl[v])
+			Items[k] = SUBMENU:AddOption(v.Name, function() ASS_SetAccess(PLAYER, k) end):SetImage(icontbl[k].Icon)
 		end
 	end
 	
@@ -447,9 +447,9 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 
 	if (includeSelf) then
 		if (includeSubMenus) then
-			SUBMENU:AddSubMenu( LocalPlayer():Nick(), nil, function(NEW_SUBMENU) PCallError( FUNCTION, NEW_SUBMENU, LocalPlayer(), unpack(arg) ) end ):SetImage(LevelIcon[LocalPlayer():GetAssLevel()])
+			SUBMENU:AddSubMenu( LocalPlayer():Nick(), nil, function(NEW_SUBMENU) PCallError( FUNCTION, NEW_SUBMENU, LocalPlayer(), unpack(arg) ) end ):SetImage(ASS_RANKS[LocalPlayer():GetAssLevel()].Icon)
 		else
-			SUBMENU:AddOption( LocalPlayer():Nick(), function() local err,res = PCallError( FUNCTION, LocalPlayer(), unpack(arg)) return res end ):SetImage(LevelIcon[LocalPlayer():GetAssLevel()])
+			SUBMENU:AddOption( LocalPlayer():Nick(), function() local err,res = PCallError( FUNCTION, LocalPlayer(), unpack(arg)) return res end ):SetImage(ASS_RANKS[LocalPlayer():GetAssLevel()].Icon)
 		end
 		NumOptions = NumOptions + 1
 	end
@@ -461,9 +461,9 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 				SUBMENU:AddSpacer()
 			end
 			if (includeSubMenus) then
-				SUBMENU:AddSubMenu( ply:Nick(), nil, function(NEW_SUBMENU) PCallError( FUNCTION, NEW_SUBMENU, ply, unpack(arg) ) end ):SetImage(LevelIcon[ply:GetAssLevel()])
+				SUBMENU:AddSubMenu( ply:Nick(), nil, function(NEW_SUBMENU) PCallError( FUNCTION, NEW_SUBMENU, ply, unpack(arg) ) end ):SetImage(ASS_RANKS[ply:GetAssLevel()].Icon)
 			else
-				SUBMENU:AddOption( ply:Nick(), function() local err,res = PCallError( FUNCTION, ply, unpack(arg)) return res end ):SetImage(LevelIcon[ply:GetAssLevel()])
+				SUBMENU:AddOption( ply:Nick(), function() local err,res = PCallError( FUNCTION, ply, unpack(arg)) return res end ):SetImage(ASS_RANKS[ply:GetAssLevel()].Icon)
 			end
 			NumOptions = NumOptions + 1
 		end
@@ -826,11 +826,10 @@ usermessage.Hook( "ASS_BannedPlayer",
 				ASS_IncProgress("ASS_BannedPlayer")
 				local name = UM:ReadString()
 				local id = UM:ReadString()
-				local sid = UM:ReadString()
 				local aname = UM:ReadString()
 				
-				name = name .. " (" .. sid .. ") *"..aname.."*"
-				table.insert( ASS_BannedPlayers, { Text = name, ID = id, SteamID = sid, AdminName = aname } )
+				name = name .. " (" .. util.SteamIDFrom64(id) .. ") *"..aname.."*"
+				table.insert( ASS_BannedPlayers, { Text = name, ID = id, SteamID = util.SteamIDFrom64(id), AdminName = aname } )
 			end
 		)
 usermessage.Hook( "ASS_ShowBannedPlayerGUI", 

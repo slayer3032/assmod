@@ -364,7 +364,7 @@ if (CLIENT) then
 		self.Value.OnSelect = function(self, index, value, data) self.Selected = data end
 		
 		for k,v in pairs(ASS_RANKS) do
-			self.AdminItems[v] = self.Value:AddChoice(ASS_RANKNAMES[v], v)
+			self.AdminItems[k] = self.Value:AddChoice(v.Name, k)
 		end
 		
 	end

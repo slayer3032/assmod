@@ -32,73 +32,40 @@ function PLUGIN.AddToLog(PLAYER, ACL, ACTION)
 
 end
 
-function PLUGIN.LoadRankings(id)
+function PLUGIN.LoadPlayerRank(pl)
+	if (ASS_Config["writer"] != PLUGIN.Name) then return false end
+	if !pl then return false end
+	if !file.Exists("assmod/users/"..pl:AssID()..".txt", "DATA") then return false end
 
-	if (ASS_Config["writer"] != PLUGIN.Name) then return end
-	if !id then return end
-	if !file.Exists("assmod/users/"..id..".txt", "DATA") then return end
-
-	local rt = ASS_GetRankingTable()
-	local ranks = file.Read("assmod/users/"..id..".txt", "DATA")
+	local ranks = file.Read("assmod/users/"..pl:AssID()..".txt", "DATA")
 	
-	if (!ranks || ranks == "") then return end
+	if (!ranks || ranks == "") then return false end
 	
 	local ranktable = util.KeyValuesToTable(ranks)
 	
-	rt[id] = {}
-	rt[id].Rank = ranktable.rank
-	rt[id].Name = ranktable.name
-	rt[id].PluginValues = ranktable.pluginpalues or {}
+	local tbl = {}
+	tbl.Rank = ranktable.rank
+	tbl.ASSPluginValues = ranktable.asspluginvalues or {}
 	
+	return tbl
 end
 
-function PLUGIN.SaveRankings(id)
-
+function PLUGIN.SavePlayerRank(pl)
 	if (ASS_Config["writer"] != PLUGIN.Name) then return end
-
-	if id then
 	
-		local rt = ASS_GetRankingTable()
-		local r = {}
+	local r = {}
 
-		if (rt[id].Rank != ASS_LVL_GUEST || table.Count(rt[id].PluginValues) != 0) then
-	
-			r.Name = rt[id].Name
-			r.Rank = rt[id].Rank
-			r.SteamID = rt[id].SteamID
-			r.PluginValues = {}
-			for nm,val in pairs(rt[id].PluginValues) do
-				r.PluginValues[nm] = tostring(val)
-			end
-			
-			local rank = util.TableToKeyValues( r )
-			file.Write("assmod/users/"..id..".txt", rank)
-			
+	if (pl.Rank != ASS_LVL_GUEST || table.Count(pl.ASSPluginValues) != 0) then
+		r.Name = pl:Nick()
+		r.Rank = pl:GetAssLevel()
+		r.ASSPluginValues = {}
+		for nm,val in pairs(pl.ASSPluginValues) do
+			r.ASSPluginValues[nm] = tostring(val)
 		end
-	else -- save all, shouldn't really ever be used
 			
-		local rt = ASS_GetRankingTable()
-		local r = {}
-	
-		for k,v in pairs(rt) do
-
-			if (v.Rank != ASS_LVL_GUEST || table.Count(v.PluginValues) != 0) then
-	
-				r.Name = v.Name
-				r.Rank = v.Rank
-				r.SteamID = v.SteamID
-				r.PluginValues = {}
-				for nm,val in pairs(v.PluginValues) do
-					r.PluginValues[nm] = tostring(val)
-				end
-			
-				local rank = util.TableToKeyValues( r )
-				file.Write("assmod/users/"..r.ID..".txt", rank)
-				
-			end
-		end
+		local rank = util.TableToKeyValues( r )
+		file.Write("assmod/users/"..pl:AssID()..".txt", rank)		
 	end
-	
 end
 
 ASS_RegisterPlugin(PLUGIN)

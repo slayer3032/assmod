@@ -20,3 +20,19 @@ Added PlayerConnect/PlayerDisconnect gameevent plugin function calls.
 Deleted 100+ lines of unused code from ass_server.lua
 Moved writer/banlist commands to ass_plugins.lua
 Removed ass_cmd.lua
+
+------------- 5/4/15 -----------------
+
+Fixed incorrect variable used in ASS_BanPlayer()
+Split ass_server.lua into multiple files.
+Redesigned ASS_RANKS as a table of rank info rather than crap.
+Undid ASS_RANKNAMES and LevelIcons and other dumb tables I made.
+PlayerRankings table removed entire.
+Ranks now store to the player entity, and rely on each player.
+Temp Admin rank supports ta_expiry = 0 for a permanent rank.
+Temp Admin rank persists through map change.
+ta_expiry PluginValue is deleted from non-Temp Admins.
+Player profiles now work entirely per user instead, should make tmysql users easy.
+LevelToString function unpuked.
+Player unbanning chattext format updated and includes banning admin's name.
+
