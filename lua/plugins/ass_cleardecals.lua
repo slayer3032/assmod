@@ -12,7 +12,7 @@ PLUGIN.Gamemodes = {}
 
 if (SERVER) then
 	function PLUGIN.Cleardecals(pl)
-		if (pl:IsTempAdmin()) then
+		if (pl:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			for k, v in pairs(player.GetAll()) do v:ConCommand("r_cleardecals") end
 		end
 	end

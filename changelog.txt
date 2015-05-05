@@ -36,3 +36,12 @@ Player profiles now work entirely per user instead, should make tmysql users eas
 LevelToString function unpuked.
 Player unbanning chattext format updated and includes banning admin's name.
 
+------------- 5/4/15 (#2) -----------------
+
+Redesigned ranks to be more "dynamic".
+Removed all IsRank functions and replaced them all with Get/HasAssLevel.
+Removed all overriden shared functions on the player metatable.
+Ranks pull a UserGroup string from the ASS_RANKS table when set.
+Moved AdminSpeech from ass_server and moved it to a plugin.
+Repurposed ASS_PlayerSpeech hook to only log chat.
+Prefixed LevelToString, PCallError and IncludeSharedFile with ASS_ to prevent conflicting functions.

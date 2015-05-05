@@ -85,7 +85,7 @@ if (SERVER) then
 		function META:CheckLimit( str )
 			
 			if (GetConVarNumber( "sbox_admin_nolimits" ) == 1) then
-				if (self:IsTempAdmin())	then 
+				if (self:HasAssLevel(ASS_LVL_TEMPADMIN))	then 
 					return true
 				end
 			end
@@ -96,7 +96,7 @@ if (SERVER) then
 		function META:GetCount( str, minus )
 		
 			if (GetConVarNumber( "sbox_admin_nolimits" ) == 1) then
-				if (self:IsTempAdmin())	then 
+				if (self:HasAssLevel(ASS_LVL_TEMPADMIN))	then 
 					if (minus) then
 						return 1
 					else 

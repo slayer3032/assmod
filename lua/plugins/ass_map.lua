@@ -67,7 +67,7 @@ if (SERVER) then
 
 	function PLUGIN.ChangeMap( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local MAP = ARGS[1]
 			local TIME = tonumber(ARGS[2]) or 0
@@ -106,7 +106,7 @@ if (SERVER) then
 			
 
 	function PLUGIN.AbortChangeMap( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		
 			timer.Remove( "ASS_MapChange" )
 			ASS_RemoveCountdownAll( "MapChange" )

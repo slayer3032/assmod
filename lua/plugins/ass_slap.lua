@@ -37,7 +37,7 @@ if (SERVER) then
 
 	function PLUGIN.SlapPlayer( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_SLAP = ASS_FindPlayer(ARGS[1])
 			local POWER = tonumber(ARGS[2]) or 1

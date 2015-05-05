@@ -15,7 +15,7 @@ if (SERVER) then
 	--ASS_NewLogLevel("ASS_ACL_KILL_SILENT")
 
 	function PLUGIN.KillPlayer( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_KILL = ASS_FindPlayer(ARGS[1])
 			if (!TO_KILL) then
 				ASS_MessagePlayer(PLAYER, "Player not found!")
@@ -40,7 +40,7 @@ if (SERVER) then
 	concommand.Add("ASS_KillPlayer", PLUGIN.KillPlayer)
 	
 	function PLUGIN.RespawnPlayer( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_RESPAWN = ASS_FindPlayer(ARGS[1])
 			if (!TO_RESPAWN) then
 				ASS_MessagePlayer(PLAYER, "Player not found!")
@@ -66,7 +66,7 @@ if (SERVER) then
 	
 	-- This is probably a bad idea but if you want to uncomment it, go for it!
 	--[[function PLUGIN.KillSilentPlayer( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_KILL = ASS_FindPlayer(ARGS[1])
 			if (!TO_KILL) then
 				ASS_MessagePlayer(PLAYER, "Player not found!")
@@ -91,7 +91,7 @@ if (SERVER) then
 	concommand.Add("ASS_KillSilentPlayer", PLUGIN.KillSilentPlayer)]]
 	
 	function PLUGIN.RocketPlayer( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_ROCKET = ASS_FindPlayer(ARGS[1])
 
@@ -134,7 +134,7 @@ if (SERVER) then
 	concommand.Add("ASS_RocketPlayer", PLUGIN.RocketPlayer)
 	
 	function PLUGIN.ExplodePlayer( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_EXPLODE = ASS_FindPlayer(ARGS[1])
 
 			if (!TO_EXPLODE) then

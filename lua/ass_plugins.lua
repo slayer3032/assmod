@@ -34,7 +34,7 @@ function ASS_RunPluginFunction( NAME, DEF_RETURN, ... )
 	
 		if (plugin[NAME]) then
 		
-			local err, ret = PCallError( plugin[NAME], unpack(arg) )
+			local err, ret = ASS_PCallError( plugin[NAME], unpack(arg) )
 			
 			if (ret != nil) then
 			
@@ -60,7 +60,7 @@ function ASS_RunPluginFunctionFiltered( NAME, FILTER_FUNC, DEF_RETURN, ... )
 		
 			if (FILTER_FUNC(plugin)) then
 		
-				local err, ret = PCallError( plugin[NAME], unpack(arg) )
+				local err, ret = ASS_PCallError( plugin[NAME], unpack(arg) )
 			
 				if (ret != nil) then
 			
@@ -132,7 +132,7 @@ function ASS_RegisterPlugin( PLUGIN )
 		ASS_Debug( "ASS Plugin -> " .. PLUGIN.Filename .. " registered\n" )
 		
 		if (PLUGIN.Registered) then
-			PCallError( PLUGIN.Registered )
+			ASS_PCallError( PLUGIN.Registered )
 		end
 
 		table.insert( Plugins, PLUGIN )

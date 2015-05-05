@@ -145,7 +145,7 @@ if (SERVER) then
 					// Check what the server allows
 					local LVL = PLUGIN.GetSwepLevel(ARGS[1])
 					if (!PLAYER:HasAssLevel( LVL )) then
-						ASS_MessagePlayer( PLAYER, "Sorry, only " .. LevelToString(LVL) .. " are allowed to use this weapon!")
+						ASS_MessagePlayer( PLAYER, "Sorry, only " .. ASS_LevelToString(LVL) .. " are allowed to use this weapon!")
 						return
 					end
 					
@@ -170,7 +170,7 @@ if (SERVER) then
 					// Check what the server allows
 					local LVL = PLUGIN.GetSwepLevel(ARGS[1])
 					if (!PLAYER:HasAssLevel( LVL )) then
-						ASS_MessagePlayer( PLAYER, "Sorry, only " .. LevelToString(LVL) .. " are allowed to use this weapon!")
+						ASS_MessagePlayer( PLAYER, "Sorry, only " .. ASS_LevelToString(LVL) .. " are allowed to use this weapon!")
 						return
 					end
 					
@@ -197,7 +197,7 @@ if (SERVER) then
 	
 		local LVL = PLUGIN.GetSentLevel(NAME)
 		if (!PLAYER:HasAssLevel( LVL )) then
-			ASS_MessagePlayer( PLAYER, "Sorry, only " .. LevelToString(LVL) .. " are allowed to use this entity!")
+			ASS_MessagePlayer( PLAYER, "Sorry, only " .. ASS_LevelToString(LVL) .. " are allowed to use this entity!")
 			return false
 		end
 	
@@ -207,7 +207,7 @@ if (SERVER) then
 		
 		local LVL = PLUGIN.GetToolLevel(MODE)
 		if (!PLAYER:HasAssLevel( LVL )) then
-			ASS_MessagePlayer( PLAYER, "Sorry, only " .. LevelToString(LVL) .. " are allowed to use this tool!")
+			ASS_MessagePlayer( PLAYER, "Sorry, only " .. ASS_LevelToString(LVL) .. " are allowed to use this tool!")
 			return false
 		end
 		
@@ -307,7 +307,7 @@ if (SERVER) then
 				ASS_Config["restrict_tools"][ToolName] = Level
 				ASS_WriteConfig()
 
-				ASS_LogAction( PLAYER, ASS_ACL_SANDBOX, "set " .. ToolName .. " to " .. LevelToString(Level) .. " only" )
+				ASS_LogAction( PLAYER, ASS_ACL_SANDBOX, "set " .. ToolName .. " to " .. ASS_LevelToString(Level) .. " only" )
 			elseif (Type == "sweps") then
 				local CurrentLevel = PLUGIN.GetSwepLevel(ToolName)
 				if (CurrentLevel == Level) then return end
@@ -322,7 +322,7 @@ if (SERVER) then
 				ASS_Config["restrict_sweps"][ToolName] = Level
 				ASS_WriteConfig()
 
-				ASS_LogAction( PLAYER, ASS_ACL_SANDBOX, "set " .. ToolName .. " to " .. LevelToString(Level) .. " only" )
+				ASS_LogAction( PLAYER, ASS_ACL_SANDBOX, "set " .. ToolName .. " to " .. ASS_LevelToString(Level) .. " only" )
 			elseif (Type == "sents") then
 				local CurrentLevel = PLUGIN.GetSentLevel(ToolName)
 				if (CurrentLevel == Level) then return end
@@ -337,7 +337,7 @@ if (SERVER) then
 				ASS_Config["restrict_sents"][ToolName] = Level
 				ASS_WriteConfig()
 
-				ASS_LogAction( PLAYER, ASS_ACL_SANDBOX, "set " .. ToolName .. " to " .. LevelToString(Level) .. " only" )
+				ASS_LogAction( PLAYER, ASS_ACL_SANDBOX, "set " .. ToolName .. " to " .. ASS_LevelToString(Level) .. " only" )
 			end
 		else
 			ASS_MessagePlayer( PLAYER, "Access denied!")
@@ -377,7 +377,7 @@ if (CLIENT) then
 		self.Label:SetText(DisplayName)
 		self.Label:SetColor(Color( 20, 20, 20, 255 ))
 		self.Value.Selected = AllowedLevel
-		self.Value:ChooseOption( LevelToString(AllowedLevel), self.AdminItems[AllowedLevel] )
+		self.Value:ChooseOption( ASS_LevelToString(AllowedLevel), self.AdminItems[AllowedLevel] )
 	
 	end
 	

@@ -55,7 +55,7 @@ if (SERVER) then
 
 	function PLUGIN.GiveItem( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_GIVE = ASS_FindPlayer(ARGS[1])
 			local ITEM = ARGS[2]
@@ -72,7 +72,7 @@ if (SERVER) then
 			if (ASS_GetSwepLevel) then
 				local LVL = ASS_GetSwepLevel(ITEM)
 				if (!PLAYER:HasAssLevel( LVL )) then
-					ASS_MessagePlayer( PLAYER, "Sorry, only " .. LevelToString(LVL) .. " are allowed to give this item!\n")
+					ASS_MessagePlayer( PLAYER, "Sorry, only " .. ASS_LevelToString(LVL) .. " are allowed to give this item!\n")
 					return
 				end
 			end
@@ -92,7 +92,7 @@ if (SERVER) then
 
 	function PLUGIN.SpawnItem( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local ITEM = ARGS[1]
 			
@@ -101,7 +101,7 @@ if (SERVER) then
 			if (ASS_GetSwepLevel) then
 				local LVL = ASS_GetSwepLevel(ITEM)
 				if (!PLAYER:HasAssLevel( LVL )) then
-					ASS_MessagePlayer( PLAYER, "Sorry, only " .. LevelToString(LVL) .. " are allowed to spawn this item!\n")
+					ASS_MessagePlayer( PLAYER, "Sorry, only " .. ASS_LevelToString(LVL) .. " are allowed to spawn this item!\n")
 					return
 				end
 			end
@@ -129,7 +129,7 @@ if (SERVER) then
 	concommand.Add("ASS_SpawnItem", PLUGIN.SpawnItem)
 
 	function PLUGIN.StripWeapons( PLAYER, CMD, ARGS )
- 		if (PLAYER:IsTempAdmin()) then
+ 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
  			local TO_STRIP = ASS_FindPlayer(ARGS[1])
            
@@ -154,13 +154,13 @@ if (SERVER) then
 
 	function PLUGIN.StripAllWeapons( PLAYER, CMD, ARGS )
 		// Simple check: Is the player a temporary admin or above?
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		
 			local INCLUDE_ADMINS = (ARGS[1] == 1)
 			
 			for _,TO_STRIP in pairs(player.GetAll()) do
 			
-				if (INCLUDE_ADMINS || (!INCLUDE_ADMINS && !TO_STRIP:IsTempAdmin())) then
+				if (INCLUDE_ADMINS || (!INCLUDE_ADMINS && !TO_STRIP:HasAssLevel(ASS_LVL_TEMPADMIN))) then
 
 					TO_STRIP:StripWeapons()
 					TO_STRIP:StripAmmo()

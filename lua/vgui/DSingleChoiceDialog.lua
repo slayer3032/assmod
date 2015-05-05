@@ -81,7 +81,7 @@ function PromptForChoice( TITLE, SELECTION, FUNCTION, ... )
 		item.DoClick = 
 			function(BTN) 
 				TE.Selection = item
-				PCallError( FUNCTION, TE, v, unpack(arg) )
+				ASS_PCallError( FUNCTION, TE, v, unpack(arg) )
 			end
 
 		TE.List:AddItem(item)

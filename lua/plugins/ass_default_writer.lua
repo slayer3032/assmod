@@ -1,10 +1,8 @@
-//The Logs cleared amazingly fast so I bumped up the maximum size by 4 times
-
 local PLUGIN = {}
 
 PLUGIN.Name = "Default Writer"
-PLUGIN.Author = "Andy Vincent, Slayer3032"
-PLUGIN.Date = "09th August 2007" --"01st May 2015"
+PLUGIN.Author = "Slayer3032"
+PLUGIN.Date = "01st May 2015"
 PLUGIN.Filename = PLUGIN_FILENAME
 PLUGIN.ClientSide = false
 PLUGIN.ServerSide = true

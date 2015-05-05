@@ -39,7 +39,7 @@ local ADMIN_DISALLOW	=	"0"
 // Strict
 //   -> PLAYER == OWNER or
 //	PLAYER is buddy of OWNER or
-//	PLAYER:IsTempAdmin() or
+//	PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN) or
 //	THING == ":ride" or
 //	THING == ":duplicator" or
 //	THING == "camera" or
@@ -154,12 +154,12 @@ if (SERVER) then
 			return true
 		end
 		
-		if (PLAYER:IsRespected() && mode == PP_RELAXED) then
+		if (PLAYER:GetAssLevel() > ASS_LVL_GUEST && mode == PP_RELAXED) then
 			ASS_Debug( PLAYER:Nick() .. " -> allowed " .. THING .. " - is respected\n")
 			return true
 		end
 
-		if (PLAYER:IsTempAdmin() && mode != PP_EXTREME && aa == ADMIN_ALLOW) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN) && mode != PP_EXTREME && aa == ADMIN_ALLOW) then
 			ASS_Debug( PLAYER:Nick() .. " -> allowed " .. THING .. " - is tempadmin\n")
 			return true
 		end
@@ -377,7 +377,7 @@ if (SERVER) then
 	
 	function PLUGIN.PropProtectMode(PLAYER, CMD, ARGS)
 	
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		
 			if (!ARGS[1]) then return end
 			if (!PLUGIN.ValidMode(ARGS[1])) then return end

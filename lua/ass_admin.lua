@@ -5,7 +5,7 @@ function ASS_LoadBanlist(id) ASS_RunPluginFunction("LoadBanlist", nil, id) end
 function ASS_SaveBanlist(id) ASS_RunPluginFunction("SaveBanlist", nil, id) end
 
 function ASS_Promote( PLAYER, UNIQUEID, NEWRANK, TIME )
-	if (PLAYER:IsTempAdmin()) then
+	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 	
 		local TO_CHANGE = ASS_FindPlayer(UNIQUEID)
 		
@@ -45,8 +45,8 @@ function ASS_Promote( PLAYER, UNIQUEID, NEWRANK, TIME )
 		
 		TO_CHANGE:SetAssLevel( NEWRANK )
 		
-		ASS_LogAction( PLAYER, ASS_ACL_PROMOTE, action .. "d " .. ASS_FullNick(TO_CHANGE) .. " to " .. LevelToString(NEWRANK, tostring(TIME) .. " minutes") )
-		ASS_MessagePlayer(TO_CHANGE, action .. "d to " .. LevelToString(NEWRANK, tostring(TIME) .. " minutes") )
+		ASS_LogAction( PLAYER, ASS_ACL_PROMOTE, action .. "d " .. ASS_FullNick(TO_CHANGE) .. " to " .. ASS_LevelToString(NEWRANK, tostring(TIME) .. " minutes") )
+		ASS_MessagePlayer(TO_CHANGE, action .. "d to " .. ASS_LevelToString(NEWRANK, tostring(TIME) .. " minutes") )
 		ASS_RunPluginFunction("SavePlayerRank", nil, TO_CHANGE)
 
 	else
@@ -55,7 +55,7 @@ function ASS_Promote( PLAYER, UNIQUEID, NEWRANK, TIME )
 end
 
 function ASS_UnBanPlayer( PLAYER, IS_IP, ID_OR_IP )
-	if (PLAYER:IsTempAdmin()) then
+	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 		if (ASS_RunPluginFunction( "AllowPlayerUnBan", true, PLAYER, IS_IP, ID_OR_IP )) then
 			if (IS_IP) then
@@ -78,7 +78,7 @@ function ASS_BanPlayer( PLAYER, UNIQUEID, TIME, REASON )
 	TIME = tonumber(TIME) or 0
 	if (#REASON == 0) then REASON = "no reason" end
 	
-	if (PLAYER:IsTempAdmin()) then
+	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		local TO_BAN = ASS_FindPlayer(UNIQUEID)
 		
 		if (!TO_BAN) then	
@@ -93,7 +93,7 @@ function ASS_BanPlayer( PLAYER, UNIQUEID, TIME, REASON )
 			end
 		end
 
-		if ((TIME == 0 || TIME > tonumber(ASS_Config["max_temp_admin_ban_time"])) && !PLAYER:IsAdmin()) then					
+		if ((TIME == 0 || TIME > tonumber(ASS_Config["max_temp_admin_ban_time"])) && !PLAYER:HasAssLevel(ASS_LVL_ADMIN)) then					
 			ASS_MessagePlayer(PLAYER, "\"" .. TO_BAN:Nick() .. "\" can only be banned for " .. ASS_Config["max_temp_admin_ban_time"] .. " minutes or less by a temporary admin")
 			TIME = tonumber(ASS_Config["max_temp_admin_ban_time"])					
 		end
@@ -127,7 +127,7 @@ end
 function ASS_KickPlayer( PLAYER, UNIQUEID, REASON )
 	if (#REASON == 0) then REASON = "no reason" end
 
-	if (PLAYER:IsTempAdmin()) then
+	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		local TO_KICK = ASS_FindPlayer(UNIQUEID)
 
 		if (!TO_KICK) then	
@@ -153,7 +153,7 @@ function ASS_KickPlayer( PLAYER, UNIQUEID, REASON )
 end
 
 function ASS_RconBegin( PLAYER )
-	if (PLAYER:IsSuperAdmin()) then
+	if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 		PLAYER.ASS_CurrentRcon = ""	
 	else
 		ASS_MessagePlayer( PLAYER, "Access denied!")
@@ -161,7 +161,7 @@ function ASS_RconBegin( PLAYER )
 end
 
 function ASS_RconEnd( PLAYER, TIME )
-	if (PLAYER:IsSuperAdmin()) then
+	if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 		if (PLAYER.ASS_CurrentRcon && PLAYER.ASS_CurrentRcon != "") then	
 			if (TIME == 0) then
 				game.ConsoleCommand(PLAYER.ASS_CurrentRcon .. "\n")
@@ -178,7 +178,7 @@ function ASS_RconEnd( PLAYER, TIME )
 end
 
 function ASS_Rcon( PLAYER, ARGS )
-	if (PLAYER:IsSuperAdmin() ) then
+	if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 		for k,v in pairs(ARGS) do	
 			PLAYER.ASS_CurrentRcon = PLAYER.ASS_CurrentRcon .. string.char(v)
 		end		

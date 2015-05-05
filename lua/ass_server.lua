@@ -21,7 +21,6 @@ ASS_NewLogLevel("ASS_ACL_PROMOTE")
 ASS_NewLogLevel("ASS_ACL_ADMINSPEECH")
 ASS_NewLogLevel("ASS_ACL_SETTING")
 
-local PlayerRankings = {}
 local ChatLogFilter = { ASS_ACL_SPEECH, ASS_ACL_KILL_SILENT, ASS_ACL_JOIN_QUIT }
 
 function ASS_IsLan()	return !game.SinglePlayer() && (GetConVarNumber("sv_lan") != 0)	end
@@ -33,10 +32,6 @@ function ASS_IsLan()	return !game.SinglePlayer() && (GetConVarNumber("sv_lan") !
 local CONSOLE = FindMetaTable("Entity")
 function CONSOLE:IsSuperAdmin()		if (!self:IsValid()) then return true else return false end end
 function CONSOLE:IsAdmin()		if (!self:IsValid()) then return true else return false end end
-function CONSOLE:IsTempAdmin()		if (!self:IsValid()) then return true else return false end end
-function CONSOLE:IsRespected()		if (!self:IsValid()) then return true else return false end end
-function CONSOLE:IsGuest()		if (!self:IsValid()) then return false else return true end end
-function CONSOLE:IsUnwanted()		if (!self:IsValid()) then return false else return true end end
 function CONSOLE:GetAssLevel()		if (!self:IsValid()) then return ASS_LVL_SERVER_OWNER else return ASS_LVL_GUEST end end
 function CONSOLE:HasAssLevel(n)		if (!self:IsValid()) then return ASS_LVL_SERVER_OWNER <= n else return ASS_LVL_GUEST <= n end end
 function CONSOLE:IsBetterOrSame(PL2)	if (!self:IsValid()) then return ASS_LVL_SERVER_OWNER <= PL2:GetAssLevel() else return ASS_LVL_GUEST <= PL2:GetAssLevel() end end
@@ -77,6 +72,12 @@ end
 function PLAYER:SetAssLevel( RANK )	
 	self.ASSRank = RANK
 	self:SetNetworkedInt("ASS_isAdmin", RANK )
+	
+	if ASS_RANKS[RANK].UserGroup then
+		self:SetUserGroup(ASS_RANKS[RANK].UserGroup)
+	else
+		self:SetUserGroup("user")
+	end
 	
 	if (RANK == ASS_LVL_TEMPADMIN) then
 		self:SetNetworkedFloat("ASS_tempAdminExpiry", self.ASSPluginValues["ta_expiry"] or 0)
@@ -215,7 +216,7 @@ function ASS_PlayerInitialSpawn( PLAYER )
 		ASS_SendNotice(PLAYER, v.Name, v.Text, v.Duration)
 	end
 	
-	if (#player.GetAll() <= 2 && !PLAYER:IsTempAdmin() && util.tobool(ASS_Config["demomode"]) ) then
+	if (#player.GetAll() <= 2 && !PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN) && util.tobool(ASS_Config["demomode"]) ) then
 		local TempAdminTime = (tonumber(ASS_Config["demomode_ta_time"]) or 1) *60 
 		PLAYER:SetAssLevel( ASS_LVL_TEMPADMIN )
 		PLAYER:SetTAExpiry( os.time() + TempAdminTime )
@@ -249,6 +250,14 @@ function ASS_EventDisconnect( TBL )
 	ASS_RunPluginFunction("PlayerDisonnect", nil, TBL)	
 end
 
+function ASS_PlayerSpeech( PLAYER, TEXT, TEAMSPEAK )
+	if (!TEAMSPEAK) then
+		ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\" to his team" )
+	else
+		ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\"" )
+	end
+end
+
 function ASS_LogAction( PLAYER, ACL, ACTION )
 	Msg( PLAYER:Nick() .. " -> " .. ACTION .. "\n")
 	ASS_TellPlayers(PLAYER, ACL, ACTION)
@@ -259,7 +268,7 @@ function ASS_MessagePlayer( PLAYER, MESSAGE )
 	chat.AddText(PLAYER, Color(0, 229, 238), MESSAGE)
 end
 
-function ASS_FullNick( PLAYER )		return "\"" .. PLAYER:Nick() .. "\" (" .. PLAYER:SteamID() .. " | " .. LevelToString(PLAYER:GetAssLevel()) .. ")"		end
+function ASS_FullNick( PLAYER )		return "\"" .. PLAYER:Nick() .. "\" (" .. PLAYER:SteamID() .. " | " .. ASS_LevelToString(PLAYER:GetAssLevel()) .. ")"		end
 function ASS_FullNickLog( PLAYER )		return "\"" .. PLAYER:Nick() .. "\" (" .. PLAYER:SteamID() .. " | " .. PLAYER:IPAddress() .. ")"		end
 
 function ASS_TellPlayers( PLAYER, ACL, ACTION )
@@ -271,33 +280,11 @@ function ASS_TellPlayers( PLAYER, ACL, ACTION )
 		end
 	else
 		for _, pl in pairs(player.GetAll()) do
-			if pl:IsTempAdmin() then
+			if pl:HasAssLevel(ASS_LVL_TEMPADMIN) then
 				chat.AddText(pl, Color(0, 255, 0), PLAYER:Nick(), Color(255, 255, 255), " "..ACTION)
 			end
 		end
 	end	
-end
-
-function ASS_PlayerSpeech( PLAYER, TEXT, TEAMSPEAK )
-	local prefix = ASS_Config["admin_speak_prefix"]
-	
-	if (!prefix || prefix == "") then
-		prefix = "@"
-	end
-	
-	local prefixlen = #prefix
-
-	if (PLAYER:IsTempAdmin() && string.sub(TEXT, 1, prefixlen) == prefix) then
-		ASS_TellPlayers( PLAYER, ASS_ACL_ADMINSPEECH, string.sub(TEXT, prefixlen+1) )
-		ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\"" )
-		return ""
-	end
-	
-	if (!TEAMSPEAK) then
-		ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\" to his team" )
-	else
-		ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\"" )
-	end
 end
 
 function ASS_FindPlayerSteamOrIP( USERID )
@@ -401,8 +388,8 @@ hook.Add( "player_disconnect", "ASS_EventDisconnect", ASS_EventDisconnect)
 hook.Add( "PlayerInitialSpawn", "ASS_PlayerInitialSpawn", ASS_PlayerInitialSpawn)
 hook.Add( "PlayerDisconnected", "ASS_PlayerDisconnected", ASS_PlayerDisconnect)
 hook.Add( "InitPostEntity", "ASS_InitPostEntity", ASS_InitPostEntity)
-hook.Add( "PlayerSay", "ASS_PlayerSpeech", ASS_PlayerSpeech)
 hook.Add( "Initialize", "ASS_Initialize", ASS_Initialize)
 hook.Add( "Think", "ASS_Think", ASS_Think)
+hook.Add( "PlayerSay", "ASS_PlayerSpeech", ASS_PlayerSpeech)
 
 ASS_Init_Shared()

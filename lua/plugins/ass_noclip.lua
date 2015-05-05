@@ -100,7 +100,7 @@ if (SERVER) then
 			ASS_Config["default_noclip"][level] = allow
 			ASS_WriteConfig()
 			
-			ASS_LogAction( PLAYER, ASS_ACL_NOCLIP, "changed the default allowed level for " .. LevelToString(level) .. " to " .. tostring(allow) )
+			ASS_LogAction( PLAYER, ASS_ACL_NOCLIP, "changed the default allowed level for " .. ASS_LevelToString(level) .. " to " .. tostring(allow) )
 			
 			PLUGIN.SendDefaultNoclipSettings()
 			
@@ -118,7 +118,7 @@ if (SERVER) then
 	
 	function PLUGIN.NoclipPriv( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_RECIEVE = ASS_FindPlayer(ARGS[1])
 			local ALLOW = tonumber(ARGS[2])

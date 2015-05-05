@@ -13,7 +13,7 @@ if SERVER then
 	ASS_NewLogLevel("ASS_ACL_TELEPORT")
 
 	function PLUGIN.TeleportPlayer( PLAYER, CMD, ARGS )
-		if PLAYER:IsTempAdmin() then
+		if PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN) then
 			local TO_TELE = ASS_FindPlayer( ARGS[1] )
 
 			if !TO_TELE then
@@ -48,7 +48,7 @@ if SERVER then
 
 	ASS_NewLogLevel("ASS_ACL_GOTO")
 	function PLUGIN.GotoPlayer( PLAYER, CMD, ARGS )
-		if PLAYER:IsTempAdmin() then
+		if PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN) then
 			local TO_GOTO = ASS_FindPlayer( ARGS[1] )
 
 			if !TO_GOTO then
@@ -102,7 +102,7 @@ if SERVER then
 
 	ASS_NewLogLevel("ASS_ACL_BRING")
 	function PLUGIN.BringPlayer( PLAYER, CMD, ARGS )
-		if PLAYER:IsTempAdmin() then
+		if PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN) then
 			local TO_BRING = ASS_FindPlayer( ARGS[1] )
 
 			if !TO_BRING then

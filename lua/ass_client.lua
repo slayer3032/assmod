@@ -132,16 +132,6 @@ function ASS_AccessMenu( SUBMENU, PLAYER )
 		end
 	end
 	
-	--[[
-	Items[ASS_LVL_SERVER_OWNER] = SUBMENU:AddOption( "Server Owner", 				function() ASS_SetAccess(PLAYER, ASS_LVL_SERVER_OWNER)	end ):SetImage(icontbl[ASS_LVL_SERVER_OWNER])
-	Items[ASS_LVL_SUPER_ADMIN] = SUBMENU:AddOption( "Super Admin", 				function() ASS_SetAccess(PLAYER, ASS_LVL_SUPER_ADMIN)	end ):SetImage(icontbl[ASS_LVL_SUPER_ADMIN])
-	Items[ASS_LVL_ADMIN] = SUBMENU:AddOption( "Admin", 					function() ASS_SetAccess(PLAYER, ASS_LVL_ADMIN)		end ):SetImage(icontbl[ASS_LVL_ADMIN])
-	Items[ASS_LVL_TEMPADMIN] = SUBMENU:AddSubMenu( "Temp Admin" , 	nil, 			function(NEWMENU) ASS_TempAdminMenu( NEWMENU, PLAYER )	end ):SetImage(icontbl[ASS_LVL_TEMPADMIN])
-	Items[ASS_LVL_RESPECTED] = SUBMENU:AddOption( "Respected", 				function() ASS_SetAccess(PLAYER, ASS_LVL_RESPECTED)	end ):SetImage(icontbl[ASS_LVL_RESPECTED])
-	Items[ASS_LVL_GUEST] = SUBMENU:AddOption( "Guest", 					function() ASS_SetAccess(PLAYER, ASS_LVL_GUEST) 	end ):SetImage(icontbl[ASS_LVL_GUEST])
-	Items[ASS_LVL_BANNED] = SUBMENU:AddOption( "Banned", 				function() ASS_SetAccess(PLAYER, ASS_LVL_BANNED)	end ):SetImage(icontbl[ASS_LVL_BANNED])
-	]]--
-	
 end
 
 function ASS_TableContains( TAB, VAR )
@@ -182,7 +172,7 @@ function ASS_FixMenu( MENU )
 	 		ASS_FixMenu(m)
  			m:SetVisible( false ) 
  			m:SetParent( self ) 
- 			PCallError( self.BuildFunction, m )
+ 			ASS_PCallError( self.BuildFunction, m )
 		end
 		
 		self.ParentMenu:OpenSubMenu( self, m )	 
@@ -342,29 +332,29 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 											table.insert(List, PL)
 										end
 									end
-									PCallError( FUNCTION, NEWMENU, List, unpack(arg))
+									ASS_PCallError( FUNCTION, NEWMENU, List, unpack(arg))
 								end ):SetImage( "icon16/group.png" )
 
 							ALLMENU:AddSubMenu( "Non-Admins", nil,
 								function(NEWMENU)
 									local List = {}
 									for _, PL in pairs(player.GetAll()) do
-										if (!PL:IsTempAdmin() && (PL != LocalPlayer() || includeSelf)) then
+										if (!PL:HasAssLevel(ASS_LVL_TEMPADMIN) && (PL != LocalPlayer() || includeSelf)) then
 											table.insert(List, PL)
 										end
 									end
-									PCallError( FUNCTION, NEWMENU, List, unpack(arg))
+									ASS_PCallError( FUNCTION, NEWMENU, List, unpack(arg))
 								end ):SetImage( "icon16/user.png" )
 
 							ALLMENU:AddSubMenu( "Admins", nil,
 								function(NEWMENU)
 									local List = {}
 									for _, PL in pairs(player.GetAll()) do
-										if (PL:IsTempAdmin() && (PL != LocalPlayer() || includeSelf)) then
+										if (PL:HasAssLevel(ASS_LVL_TEMPADMIN) && (PL != LocalPlayer() || includeSelf)) then
 											table.insert(List, PL)
 										end
 									end
-									PCallError( FUNCTION, NEWMENU, List, unpack(arg))
+									ASS_PCallError( FUNCTION, NEWMENU, List, unpack(arg))
 								end ):SetImage( "icon16/user_suit.png" )
 						else
 						
@@ -373,7 +363,7 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 									local res = nil
 									for _, PL in pairs(player.GetAll()) do
 										if (PL != LocalPlayer() || includeSelf) then
-											local err,res2 = PCallError( FUNCTION, PL, unpack(arg))
+											local err,res2 = ASS_PCallError( FUNCTION, PL, unpack(arg))
 											res = res || res2
 										end
 									end
@@ -383,8 +373,8 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 								function()
 									local res = nil
 									for _, PL in pairs(player.GetAll()) do
-										if (!PL:IsTempAdmin() && (PL != LocalPlayer() || includeSelf)) then
-											local err,res2 = PCallError( FUNCTION, PL, unpack(arg))
+										if (!PL:HasAssLevel(ASS_LVL_TEMPADMIN) && (PL != LocalPlayer() || includeSelf)) then
+											local err,res2 = ASS_PCallError( FUNCTION, PL, unpack(arg))
 											res = res || res2
 										end
 									end
@@ -394,8 +384,8 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 								function()
 									local res = nil
 									for _, PL in pairs(player.GetAll()) do
-										if (PL:IsTempAdmin() && (PL != LocalPlayer() || includeSelf)) then
-											local err,res2 = PCallError( FUNCTION, PL, unpack(arg))
+										if (PL:HasAssLevel(ASS_LVL_TEMPADMIN) && (PL != LocalPlayer() || includeSelf)) then
+											local err,res2 = ASS_PCallError( FUNCTION, PL, unpack(arg))
 											res = res || res2
 										end
 									end
@@ -412,11 +402,11 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 					function(NEWMENU)
 						local List = {}
 						for _, PL in pairs(player.GetAll()) do
-							if (!PL:IsTempAdmin()) then
+							if (!PL:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 								table.insert(List, PL)
 							end
 						end
-						PCallError( FUNCTION, NEWMENU, List, unpack(arg))
+						ASS_PCallError( FUNCTION, NEWMENU, List, unpack(arg))
 					end ):SetImage( "icon16/user.png" )
 
 			else
@@ -425,8 +415,8 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 					function()
 						local res = nil
 						for _, PL in pairs(player.GetAll()) do
-							if (!PL:IsTempAdmin()) then
-								local err, res2 = PCallError( FUNCTION, PL, unpack(arg))
+							if (!PL:HasAssLevel(ASS_LVL_TEMPADMIN)) then
+								local err, res2 = ASS_PCallError( FUNCTION, PL, unpack(arg))
 								res = res or res2
 							end
 						end
@@ -447,9 +437,9 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 
 	if (includeSelf) then
 		if (includeSubMenus) then
-			SUBMENU:AddSubMenu( LocalPlayer():Nick(), nil, function(NEW_SUBMENU) PCallError( FUNCTION, NEW_SUBMENU, LocalPlayer(), unpack(arg) ) end ):SetImage(ASS_RANKS[LocalPlayer():GetAssLevel()].Icon)
+			SUBMENU:AddSubMenu( LocalPlayer():Nick(), nil, function(NEW_SUBMENU) ASS_PCallError( FUNCTION, NEW_SUBMENU, LocalPlayer(), unpack(arg) ) end ):SetImage(ASS_RANKS[LocalPlayer():GetAssLevel()].Icon)
 		else
-			SUBMENU:AddOption( LocalPlayer():Nick(), function() local err,res = PCallError( FUNCTION, LocalPlayer(), unpack(arg)) return res end ):SetImage(ASS_RANKS[LocalPlayer():GetAssLevel()].Icon)
+			SUBMENU:AddOption( LocalPlayer():Nick(), function() local err,res = ASS_PCallError( FUNCTION, LocalPlayer(), unpack(arg)) return res end ):SetImage(ASS_RANKS[LocalPlayer():GetAssLevel()].Icon)
 		end
 		NumOptions = NumOptions + 1
 	end
@@ -461,9 +451,9 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 				SUBMENU:AddSpacer()
 			end
 			if (includeSubMenus) then
-				SUBMENU:AddSubMenu( ply:Nick(), nil, function(NEW_SUBMENU) PCallError( FUNCTION, NEW_SUBMENU, ply, unpack(arg) ) end ):SetImage(ASS_RANKS[ply:GetAssLevel()].Icon)
+				SUBMENU:AddSubMenu( ply:Nick(), nil, function(NEW_SUBMENU) ASS_PCallError( FUNCTION, NEW_SUBMENU, ply, unpack(arg) ) end ):SetImage(ASS_RANKS[ply:GetAssLevel()].Icon)
 			else
-				SUBMENU:AddOption( ply:Nick(), function() local err,res = PCallError( FUNCTION, ply, unpack(arg)) return res end ):SetImage(ASS_RANKS[ply:GetAssLevel()].Icon)
+				SUBMENU:AddOption( ply:Nick(), function() local err,res = ASS_PCallError( FUNCTION, ply, unpack(arg)) return res end ):SetImage(ASS_RANKS[ply:GetAssLevel()].Icon)
 			end
 			NumOptions = NumOptions + 1
 		end
@@ -629,7 +619,7 @@ function ASS_ShowMenu()
 	local MENU = DermaMenu()
 	ASS_FixMenu(MENU)
 	
-	if (!LocalPlayer():IsTempAdmin()) then	
+	if (!LocalPlayer():HasAssLevel(ASS_LVL_TEMPADMIN)) then	
 
 		MENU:AddSubMenu("Settings", nil, ASS_Settings ):SetImage( "icon16/wrench.png" )
 		MENU:AddSpacer()

@@ -16,7 +16,7 @@ if (SERVER) then
 
 	function PLUGIN.Cleanup(PLAYER, CMD, ARGS)
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		
 			if (ARGS[1]) then
 
@@ -55,7 +55,7 @@ if (SERVER) then
 	
 	function PLUGIN.CleanupMap(PLAYER, CMD, ARGS)
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			game.CleanUpMap()
 			ASS_LogAction( PLAYER, ASS_ACL_SANDBOX, "cleaned up the map" )
 		else

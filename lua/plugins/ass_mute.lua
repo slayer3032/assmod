@@ -16,7 +16,7 @@ if (SERVER) then
 	ASS_NewLogLevel("ASS_ACL_GAG")
 	
 	function PLUGIN.Mute( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_MUTE = ASS_FindPlayer(ARGS[1])
 
 			if (!TO_MUTE) then
@@ -40,7 +40,7 @@ if (SERVER) then
 	concommand.Add("ASS_Mute", PLUGIN.Mute)
 
 	function PLUGIN.UnMute( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_UNMUTE = ASS_FindPlayer(ARGS[1])
 
 			if (!TO_UNMUTE) then
@@ -62,7 +62,7 @@ if (SERVER) then
 	
 	
 	function PLUGIN.Gag( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_GAG = ASS_FindPlayer(ARGS[1])
 
 			if (!TO_GAG) then
@@ -86,7 +86,7 @@ if (SERVER) then
 	concommand.Add("ASS_Gag", PLUGIN.Gag)
 
 	function PLUGIN.UnGag( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			local TO_UNGAG = ASS_FindPlayer(ARGS[1])
 
 			if (!TO_UNGAG) then

@@ -21,7 +21,7 @@ if (SERVER) then
 	
 	function PLUGIN.SetTeam( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_CHANGE = ASS_FindPlayer(ARGS[1])
 			local TEAM = tonumber(ARGS[2]) or TEAM_UNASSIGNED

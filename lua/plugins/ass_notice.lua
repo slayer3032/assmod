@@ -16,7 +16,7 @@ if (SERVER) then
 	
 	function PLUGIN.AddFixedNotice( PLAYER, CMD, ARGS )
 		if (!PLAYER:IsValid()) then PLAYER = ConsolePlayer() end
-		if (PLAYER:IsAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_ADMIN)) then
 		
 			local dur = tonumber(ARGS[1]) or 5
 			table.remove(ARGS, 1)
@@ -30,7 +30,7 @@ if (SERVER) then
 	concommand.Add("ASS_AddFixedNotice", PLUGIN.AddFixedNotice)
 
 	function PLUGIN.AddNotice( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		
 			local dur = tonumber(ARGS[1]) or 5
 			table.remove(ARGS, 1)
@@ -52,7 +52,7 @@ if (SERVER) then
 	concommand.Add("ASS_ListAllNotices", PLUGIN.ListAllNotices)
 
 	function PLUGIN.RemoveNotice( PLAYER, CMD, ARGS )
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 			
 			local name = table.concat(ARGS, "")
 			local note = ASS_FindNoteText(name) or "(unknown)"

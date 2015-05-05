@@ -16,7 +16,7 @@ if (SERVER) then
 	
 	function PLUGIN.God( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_RECIEVE = ASS_FindPlayer(ARGS[1])
 			local ENABLE = tonumber(ARGS[2]) > 0

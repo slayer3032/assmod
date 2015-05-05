@@ -171,7 +171,7 @@ if (SERVER) then
 	
 	function PLUGIN.SpamProtectMode(PLAYER, CMD, ARGS)
 	
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		
 			if (!ARGS[1]) then return end
 			if (!ARGS[2]) then return end

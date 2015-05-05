@@ -16,7 +16,7 @@ if (SERVER) then
 	
 	function PLUGIN.Freeze( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_FREEZE = ASS_FindPlayer(ARGS[1])
 
@@ -51,7 +51,7 @@ if (SERVER) then
 
 	function PLUGIN.UnFreeze( PLAYER, CMD, ARGS )
 
-		if (PLAYER:IsTempAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
 			local TO_UNFREEZE = ASS_FindPlayer(ARGS[1])
 

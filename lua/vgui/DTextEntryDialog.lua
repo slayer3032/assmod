@@ -78,7 +78,7 @@ function PANEL:Init()
 	
 	self.OkButton = vgui.Create("DButton", self)
 	self.OkButton:SetText("Ok")
-	self.OkButton.DoClick = function(BTN) PCallError( self.OnOk, self, self.Text:GetValue(), unpack(self.Params) ) end
+	self.OkButton.DoClick = function(BTN) ASS_PCallError( self.OnOk, self, self.Text:GetValue(), unpack(self.Params) ) end
 	
 	self.CancelButton = vgui.Create("DButton", self)
 	self.CancelButton:SetText("Cancel")
