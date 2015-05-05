@@ -77,8 +77,6 @@ function PLAYER:SetAssLevel( RANK )
 	
 	if ASS_RANKS[RANK].UserGroup then
 		self:SetUserGroup(ASS_RANKS[RANK].UserGroup)
-	--[[else
-		self:SetUserGroup("user")]]
 	end
 	
 	if (RANK == ASS_LVL_TEMPADMIN) then
@@ -129,7 +127,6 @@ function PLAYER:GetAssAttribute(NAME, TYPE, DEFAULT)
 
 	NAME = string.lower(NAME)
 	PLUGIN = string.match(debug.getinfo(1,"S").short_src, "[/]?([^/]+)$-[%.]")
-	print(string.match(debug.getinfo(1,"S").short_src, "[/]?([^/]+)$-[%.]"))
 	
 	if (!self.ASSPluginValues) then
 		return convertFunc(DEFAULT)
