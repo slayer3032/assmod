@@ -54,8 +54,12 @@ function ASS_PCallError(...)
 end
 
 function ASS_LevelToString( LEVEL, TIME )
-	if TIME then
-		return ASS_RANKS[LEVEL].Name.." for "..TIME
+	if LEVEL == ASS_LVL_TEMPADMIN then
+		if TIME then
+			return ASS_RANKS[LEVEL].Name.." for "..TIME
+		else
+			return ASS_RANKS[LEVEL].Name
+		end
 	else
 		return ASS_RANKS[LEVEL].Name
 	end
