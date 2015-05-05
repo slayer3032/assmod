@@ -45,3 +45,4 @@ Ranks pull a UserGroup string from the ASS_RANKS table when set.
 Moved AdminSpeech from ass_server and moved it to a plugin.
 Repurposed ASS_PlayerSpeech hook to only log chat.
 Prefixed LevelToString, PCallError and IncludeSharedFile with ASS_ to prevent conflicting functions.
+Fixed normal chat logging as team chat.
