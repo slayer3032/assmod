@@ -251,7 +251,7 @@ function ASS_EventDisconnect( TBL )
 end
 
 function ASS_PlayerSpeech( PLAYER, TEXT, TEAMSPEAK )
-	if (!TEAMSPEAK) then
+	if (TEAMSPEAK) then
 		ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\" to his team" )
 	else
 		ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\"" )

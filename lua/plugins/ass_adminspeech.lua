@@ -25,12 +25,6 @@ if (SERVER) then
 			ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\"" )
 			return ""
 		end
-	
-		if (!TEAMSPEAK) then
-			ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\" to his team" )
-		else
-			ASS_LogAction( PLAYER, ASS_ACL_SPEECH, "said \"" .. TEXT .. "\"" )
-		end
 	end
 	
 	hook.Add( "PlayerSay", "ASS_AdminSpeech", ASS_AdminSpeech)
