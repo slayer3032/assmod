@@ -217,7 +217,7 @@ concommand.Add("ASS_SetBanlistPlugin",
 					ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
 					return
 				end
-				if (!Plugin.AddToLog || !Plugin.LoadRankings || !Plugin.SaveRankings) then
+				if (!Plugin.AddToLog || !Plugin.LoadPlayerRank || !Plugin.SavePlayerRank) then
 					ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a writer plugin!");
 					return
 				end
@@ -237,7 +237,7 @@ concommand.Add("ASS_SetBanlistPlugin",
 		end,
 		function(CMD,ARGS)
 			local f = ASS_AllPlugins(
-					function(plugin) return plugin.AddToLog && plugin.LoadRankings && plugin.SaveRankings end
+					function(plugin) return plugin.AddToLog && plugin.LoadPlayerRank && plugin.SavePlayerRank end
 				)
 			local res = {}
 			for k,v in pairs(f) do

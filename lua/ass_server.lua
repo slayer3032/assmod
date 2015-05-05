@@ -4,6 +4,8 @@ AddCSLuaFile("autorun/ass.lua")
 AddCSLuaFile("ass_shared.lua")
 AddCSLuaFile("ass_client.lua")
 
+include("ass_von.lua")
+include("ass_config_mysql.lua")
 include("ass_shared.lua")
 include("ass_res.lua")
 include("ass_notice.lua")
@@ -53,14 +55,14 @@ CONSOLE = nil
 
 local PLAYER = FindMetaTable("Player")
 
-function PLAYER:InitLevel()	
-	local tbl = ASS_RunPluginFunction("LoadPlayerRank", tbl, self)
-	
+function PLAYER:InitLevel(tbl)
 	if tbl then
-		self.ASSPluginValues = self.ASSPluginValues or {}
+		self.ASSPluginValues = tbl.ASSPluginValues or {}
+		self.ASSGuest = false
 		self:SetAssLevel(tbl.Rank)
 	else
 		self.ASSPluginValues = {}
+		self.ASSGuest = true
 		self:SetAssLevel(ASS_LVL_GUEST)
 	end
 end
@@ -75,14 +77,17 @@ function PLAYER:SetAssLevel( RANK )
 	
 	if ASS_RANKS[RANK].UserGroup then
 		self:SetUserGroup(ASS_RANKS[RANK].UserGroup)
-	else
-		self:SetUserGroup("user")
+	--[[else
+		self:SetUserGroup("user")]]
 	end
 	
 	if (RANK == ASS_LVL_TEMPADMIN) then
-		self:SetNetworkedFloat("ASS_tempAdminExpiry", self.ASSPluginValues["ta_expiry"] or 0)
-	elseif self.ASSPluginValues["ta_expiry"] then
-		self.ASSPluginValues["ta_expiry"] = nil
+		if self.ASSPluginValues["ass_server"] then
+			if self.ASSPluginValues["ass_server"]["ta_expiry"] and self.ASSPluginValues["ass_server"]["ta_expiry"] > 0 then
+				self:SetNetworkedFloat("ASS_tempAdminExpiry", self.ASSPluginValues["ass_server"]["ta_expiry"] or 0)
+				ASS_NamedCountdown( self, "TempAdmin", "Temp Admin Expires in", self.ASSPluginValues["ass_server"]["ta_expiry"]-os.time() )
+			end
+		end
 	end
 	
 	ASS_Debug( self:Nick() .. " given level " .. self:GetAssLevel() .. "\n")
@@ -94,8 +99,7 @@ function PLAYER:SetAssAttribute(NAME, VALUE)
 	if (type(VALUE) != "string" && type(VALUE) != "number" && type(VALUE) != "boolean" && type(VALUE) != "nil") then Msg("SetAssAttribute error - Value invalid\n") return end
 	
 	NAME = string.lower(NAME)
-	
-	self:InitLevel()  -- prevent multi-instance servers overwriting
+	PLUGIN = string.match(debug.getinfo(1,"S").short_src, "[/]?([^/]+)$-[%.]")
 	
 	if (!self:GetAssLevel()) then
 		self:SetAssLevel(ASS_LVL_GUEST)
@@ -103,7 +107,10 @@ function PLAYER:SetAssAttribute(NAME, VALUE)
 	if (!self.ASSPluginValues) then
 		self.ASSPluginValues = {}
 	end
-	self.ASSPluginValues[NAME] = VALUE
+	if (!self.ASSPluginValues[PLUGIN]) then
+		self.ASSPluginValues[PLUGIN] = {}
+	end
+	self.ASSPluginValues[PLUGIN][NAME] = VALUE
 	
 	ASS_RunPluginFunction("SavePlayerRank", nil, self)
 end
@@ -121,21 +128,24 @@ function PLAYER:GetAssAttribute(NAME, TYPE, DEFAULT)
 	end
 
 	NAME = string.lower(NAME)
-	
-	self:InitLevel()  -- prevent multi-instance servers overwriting
+	PLUGIN = string.match(debug.getinfo(1,"S").short_src, "[/]?([^/]+)$-[%.]")
+	print(string.match(debug.getinfo(1,"S").short_src, "[/]?([^/]+)$-[%.]"))
 	
 	if (!self.ASSPluginValues) then
 		return convertFunc(DEFAULT)
 	end
-	if (!self.ASSPluginValues[NAME] == nil) then
+	if (!self.ASSPluginValues[PLUGIN]) then
+		return convertFunc(DEFAULT)
+	end
+	if (self.ASSPluginValues[PLUGIN][NAME] == nil) then
 		return convertFunc(DEFAULT)
 	end
 	
-	local result = convertFunc(self.ASSPluginValues[NAME])
+	local result = convertFunc(self.ASSPluginValues[PLUGIN][NAME])
 	if (result == nil) then
 		return convertFunc(DEFAULT)
 	else
-		return result
+		return result	
 	end
 end
 
@@ -209,7 +219,7 @@ function ASS_PlayerInitialSpawn( PLAYER )
 		PLAYER:SetAssLevel(ASS_LVL_SERVER_OWNER)
 		ASS_RunPluginFunction("SavePlayerRank", nil, PLAYER)	
 	else	
-		PLAYER:InitLevel()	
+		ASS_RunPluginFunction("LoadPlayerRank", nil, PLAYER)
 	end
 	
 	for k,v in pairs(ASS_GetActiveNotices()) do

@@ -32,20 +32,24 @@ end
 
 function PLUGIN.LoadPlayerRank(pl)
 	if (ASS_Config["writer"] != PLUGIN.Name) then return false end
-	if !pl then return false end
-	if !file.Exists("assmod/users/"..pl:AssID()..".txt", "DATA") then return false end
+	
+	if !pl then pl:InitLevel() return false end
+	if !file.Exists("assmod/users/"..pl:AssID()..".txt", "DATA") then pl:InitLevel() return false end
 
 	local ranks = file.Read("assmod/users/"..pl:AssID()..".txt", "DATA")
 	
 	if (!ranks || ranks == "") then return false end
 	
-	local ranktable = util.KeyValuesToTable(ranks)
+	--[[local ranktable = util.KeyValuesToTable(ranks)
 	
 	local tbl = {}
 	tbl.Rank = ranktable.rank
-	tbl.ASSPluginValues = ranktable.asspluginvalues or {}
+	tbl.ASSPluginValues = ranktable.asspluginvalues or {}]]
 	
-	return tbl
+	local tbl = von.deserialize(ranks)
+	PrintTable(tbl)
+	
+	pl:InitLevel(tbl)
 end
 
 function PLUGIN.SavePlayerRank(pl)
@@ -56,12 +60,17 @@ function PLUGIN.SavePlayerRank(pl)
 	if (pl.Rank != ASS_LVL_GUEST || table.Count(pl.ASSPluginValues) != 0) then
 		r.Name = pl:Nick()
 		r.Rank = pl:GetAssLevel()
-		r.ASSPluginValues = {}
-		for nm,val in pairs(pl.ASSPluginValues) do
-			r.ASSPluginValues[nm] = tostring(val)
-		end
+		r.ASSPluginValues = pl.ASSPluginValues
+		--[[for nm,val in pairs(pl.ASSPluginValues) do
+			r.ASSPluginValues[nm] = {}
+			for k,v in pairs(val) do
+				print(k)
+				print(v)
+				r.ASSPluginValues[nm][k] = tostring(v)
+			end
+		end]]
 			
-		local rank = util.TableToKeyValues( r )
+		local rank = von.serialize(r)
 		file.Write("assmod/users/"..pl:AssID()..".txt", rank)		
 	end
 end
