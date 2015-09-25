@@ -1,6 +1,7 @@
 -- Do not rename these variables, you need to change the values if you add ranks between them.
 -- These define what AssLevel has certain privileges, if you want to make more ranks add them to the table higher than the base value and move rest down.
 -- You won't gain anything from adding ranks other than immunity in plugins that use it, this is mainly for developers.
+
 ASS_LVL_SERVER_OWNER	= 0 -- Server Owner
 ASS_LVL_SUPER_ADMIN	= 1 -- Base Super Admin Rank
 ASS_LVL_ADMIN		= 2 -- Base Admin Rank
@@ -22,12 +23,19 @@ ASS_VERSION = "Assmod 2.4"
 
 function ASS_Init_Shared()
 	local PLAYER = FindMetaTable("Player")
-
-	function PLAYER:GetAssLevel()		return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST)						end
-	function PLAYER:HasAssLevel(n)		return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= n						end
-	function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= self:GetNetworkedInt("ASS_isAdmin") else return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= PL2:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST)	end end
-	function PLAYER:GetTAExpiry(n)		return self:GetNetworkedFloat("ASS_tempAdminExpiry", 0)	end
-	function PLAYER:AssID()		return self:GetNetworkedString("ASS_AssID")	end
+	
+	function PLAYER:GetTAExpiry(n) return self:GetNetworkedFloat("ASS_tempAdminExpiry", 0) end
+	function PLAYER:AssID() return self:GetNetworkedString("ASS_AssID")	end
+	
+	if (SERVER) then
+		function PLAYER:GetAssLevel() return (self.ASSRank or ASS_LVL_GUEST) end
+		function PLAYER:HasAssLevel(n) return (self.ASSRank or ASS_LVL_GUEST) <= n end
+		function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= (self.ASSRank or ASS_LVL_GUEST) else return (self.ASSRank or ASS_LVL_GUEST) <= (self.ASSRank or ASS_LVL_GUEST) end end
+	else
+		function PLAYER:GetAssLevel() return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) end
+		function PLAYER:HasAssLevel(n) return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= n end
+		function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) else return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= PL2:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) end end
+	end
 	
 	PLAYER = nil
 end

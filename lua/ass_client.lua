@@ -518,7 +518,7 @@ function ASS_Settings( SUBMENU )
 	SUBMENU:AddOption( "Toggle Notice Bar", function() RunConsoleCommand("ass_togglenoticebar") end):SetImage("icon16/newspaper.png")
 end
 
-function ASS_Rcon(TEXT, TIME)
+--[[function ASS_Rcon(TEXT, TIME)
 
 	RunConsoleCommand("ASS_RconBegin" )
 	
@@ -541,11 +541,16 @@ function ASS_Rcon(TEXT, TIME)
 	
 	RunConsoleCommand("ASS_RconEnd", (TIME or 0) )
 
+end]]
+
+function ASS_Rcon(TEXT)
+	net.Start("ass_rcon")
+		net.WriteString(text)
+	net.SendToServer()
 end
 
 function ASS_RconEntry(MENUITEM)
 
-	--Derma_StringRequest( "Remote Command...", 
 	PromptStringRequest( "Remote Command...", 
 		"What command do you want to execute?", 
 		"", 

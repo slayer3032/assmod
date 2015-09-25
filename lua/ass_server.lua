@@ -67,10 +67,6 @@ function PLAYER:InitLevel(tbl)
 	end
 end
 
-function PLAYER:GetAssLevel()
-	return self.ASSRank or ASS_LVL_GUEST
-end
-
 function PLAYER:SetAssLevel( RANK )	
 	self.ASSRank = RANK
 	self:SetNetworkedInt("ASS_isAdmin", RANK )
@@ -166,6 +162,8 @@ function ASS_Initialize()
 	ASS_InitResources()
 	ASS_LoadPlugins()
 	ASS_LoadBanlist()
+	
+	util.AddNetworkString("ass_rcon")
 	
 	for k,v in pairs(ASS_Config["fixed_notices"]) do
 		ASS_AddNamedNotice( ASS_GenerateFixedNoticeName(v.text, v.duration), v.text or "", tonumber(v.duration) or 10)

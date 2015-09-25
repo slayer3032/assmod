@@ -284,7 +284,7 @@ if (SERVER) then
 	concommand.Add("ASS_GetToolAllowed", PLUGIN.SendAllowedList)
 	
 	function PLUGIN.SetAllowedValue(PLAYER, CMD, ARGS)
-		if (PLAYER:IsSuperAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_SUPER_ADMIN)) then
 			local Type = ARGS[1]
 			local ToolName = ARGS[2]
 			local Level = tonumber(ARGS[3])

@@ -52,7 +52,7 @@ if (SERVER) then
 
 	function PLUGIN.ChangeOption( PLAYER, CMD, ARGS )
 	
-		if (PLAYER:IsSuperAdmin()) then
+		if (PLAYER:HasAssLevel(ASS_LVL_SUPER_ADMIN)) then
 		
 			if (!ARGS[1] || !ARGS[2]) then
 				ASS_MessagePlayer( PLAYER, "Error!\n")

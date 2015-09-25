@@ -48,7 +48,7 @@ local ADMIN_DISALLOW	=	"0"
 // Extreme
 //   -> PLAYER == OWNER or
 //	PLAYER is buddy of OWNER or
-//	PLAYER:IsSuperAdmin()
+//	PLAYER:HasAssLevel(ASS_LVL_SUPER_ADMIN)
 
 if (SERVER) then
 
@@ -164,7 +164,7 @@ if (SERVER) then
 			return true
 		end
 		
-		if (PLAYER:IsSuperAdmin() && aa == ADMIN_ALLOW) then
+		if (PLAYER:HasAssLevel(ASS_LVL_SUPER_ADMIN) && aa == ADMIN_ALLOW) then
 			ASS_Debug( PLAYER:Nick() .. " -> allowed " .. THING .. " - is superadmin\n")
 			return true
 		end

@@ -152,7 +152,9 @@ function ASS_KickPlayer( PLAYER, UNIQUEID, REASON )
 	end	
 end
 
-function ASS_RconBegin( PLAYER )
+
+
+--[[function ASS_RconBegin( PLAYER )
 	if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 		PLAYER.ASS_CurrentRcon = ""	
 	else
@@ -185,9 +187,8 @@ function ASS_Rcon( PLAYER, ARGS )
 	else	
 		ASS_MessagePlayer( PLAYER, "Access denied!")
 	end	
-end
-
-concommand.Add( "ASS_RconBegin",		
+end]]
+--[[concommand.Add( "ASS_RconBegin",		
 	function (pl, cmd, args) 	
 		ASS_RconBegin( pl ) 	
 	end	
@@ -201,7 +202,23 @@ concommand.Add( "ASS_RconEnd",
 	function (pl, cmd, args) 	
 		ASS_RconEnd( pl, tonumber(args[1]) or 0 ) 	
 	end	
-)
+)]]
+
+function ASS_Rcon(len, pl)
+	if pl and pl:IsValid() then
+		if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
+			pl.ASS_CurrentRcon = net.ReadString()
+			game.ConsoleCommand(pl.ASS_CurrentRcon .. "\n")
+			ASS_LogAction( PLAYER, ASS_ACL_RCON, "ran command \"" .. PLAYER.ASS_CurrentRcon .. "\"" )
+			PLAYER.ASS_CurrentRcon = nil
+		end
+	else	
+		ASS_MessagePlayer( PLAYER, "Access denied!")
+	end	
+end
+
+net.Receive("ass_rcon", ASS_Rcon)
+
 concommand.Add( "ASS_KickPlayer",	
 	function (pl, cmd, args) 	
 		local uid = args[1] 
