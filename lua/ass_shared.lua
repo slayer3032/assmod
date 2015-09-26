@@ -21,6 +21,8 @@ ASS_RANKS[255] = {Name = "Unwanted", Icon = "icon16/user_delete.png"}
 
 ASS_VERSION = "Assmod 2.4"
 
+function ASS_IsLan() return !game.SinglePlayer() && (GetConVarNumber("sv_lan") != 0) end
+
 function ASS_Init_Shared()
 	local PLAYER = FindMetaTable("Player")
 	
@@ -30,11 +32,11 @@ function ASS_Init_Shared()
 	if (SERVER) then
 		function PLAYER:GetAssLevel() return (self.ASSRank or ASS_LVL_GUEST) end
 		function PLAYER:HasAssLevel(n) return (self.ASSRank or ASS_LVL_GUEST) <= n end
-		function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= (self.ASSRank or ASS_LVL_GUEST) else return (self.ASSRank or ASS_LVL_GUEST) <= (self.ASSRank or ASS_LVL_GUEST) end end
+		function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= (self.ASSRank or ASS_LVL_GUEST) else return (self.ASSRank or ASS_LVL_GUEST) <= (PL2.ASSRank or ASS_LVL_GUEST) end end
 	else
-		function PLAYER:GetAssLevel() return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) end
-		function PLAYER:HasAssLevel(n) return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= n end
-		function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) else return self:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) <= PL2:GetNetworkedInt("ASS_isAdmin", ASS_LVL_GUEST) end end
+		function PLAYER:GetAssLevel() return self:GetNetworkedInt("ASS_Rank", ASS_LVL_GUEST) end
+		function PLAYER:HasAssLevel(n) return self:GetNetworkedInt("ASS_Rank", ASS_LVL_GUEST) <= n end
+		function PLAYER:IsBetterOrSame(PL2)	if (!PL2:IsValid()) then return ASS_LVL_SERVER_OWNER <= self:GetNetworkedInt("ASS_Rank", ASS_LVL_GUEST) else return self:GetNetworkedInt("ASS_Rank", ASS_LVL_GUEST) <= PL2:GetNetworkedInt("ASS_Rank", ASS_LVL_GUEST) end end
 	end
 	
 	PLAYER = nil

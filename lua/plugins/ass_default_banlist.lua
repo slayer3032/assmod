@@ -13,21 +13,28 @@ PLUGIN.Gamemodes = {}
 function PLUGIN.LoadBanlist()
 
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
+	if !file.Exists("assmod/bans/players.txt", "DATA") then file.Write("assmod/bans/players.txt", "") return end
 
 	local bt = ASS_GetBanTable()
-	local bans = file.Read("assmod/ass_banlist.txt", "DATA")
+	local bans = file.Read("assmod/bans/players.txt", "DATA")
 	
-	if (!bans || bans == "") then return end
+	if (!bans or bans == "") then return end
 	
-	local bantable = util.KeyValuesToTable(bans)
+	local bantable = von.deserialize(bans)
+
+	if (#bantable == 0) then return end
+
+	PrintTable(bantable)
 	
 	for k,v in pairs(bantable) do
-		bt[v.id] = {}
-		bt[v.id].Name = v.name
-		bt[v.id].AdminName = v.adminname
-		bt[v.id].AdminID = v.adminid
-		bt[v.id].UnbanTime = v.unbantime
-		bt[v.id].Reason	= v.reason
+		print(k)
+		PrintTable(v)
+		bt[v.ID] = {}
+		bt[v.ID].Name = v.Name
+		bt[v.ID].AdminName = v.AdminName
+		bt[v.ID].AdminID = v.AdminID
+		bt[v.ID].UnbanTime = v.UnbanTime
+		bt[v.ID].Reason	= v.Reason
 	end
 	
 end
@@ -40,7 +47,6 @@ function PLUGIN.SaveBanlist(id)
 	local bantbl = {}
 	
 	for k,v in pairs(bt) do
-
 		local r = {}
 		r.Name = v.Name
 		r.ID = k
@@ -49,11 +55,10 @@ function PLUGIN.SaveBanlist(id)
 		r.AdminID = v.AdminID
 		r.Reason = v.Reason
 		table.insert(bantbl, r)
-
 	end
 
-	local bans = util.TableToKeyValues( bantbl )
-	file.Write("assmod/ass_banlist.txt", bans)
+	local bans = von.serialize( bantbl )
+	file.Write("assmod/bans/players.txt", bans)
 	
 end
 
@@ -61,8 +66,7 @@ function PLUGIN.RefreshBanlist()
 
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	
-	--Uncomment if you for some reason run multi-instance servers on text files
-	--ASS_LoadBanlist()
+	ASS_LoadBanlist()
 	local bt = ASS_GetBanTable()
 
 	if bt then
@@ -93,6 +97,7 @@ function PLUGIN.CheckBanlist(id)
 end
 
 function PLUGIN.CheckPassword(id, ip, svpass, clpass, name)
+
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	if svpass != "" and svpass != clpass then return false, "Incorrect password." end
 	

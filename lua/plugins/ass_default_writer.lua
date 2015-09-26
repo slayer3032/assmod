@@ -33,7 +33,7 @@ end
 function PLUGIN.LoadPlayerRank(pl)
 	if (ASS_Config["writer"] != PLUGIN.Name) then return false end
 	
-	if !pl then pl:InitLevel() return false end
+	if !pl then return false end
 	if !file.Exists("assmod/users/"..pl:AssID()..".txt", "DATA") then pl:InitLevel() return false end
 
 	local ranks = file.Read("assmod/users/"..pl:AssID()..".txt", "DATA")

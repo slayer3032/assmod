@@ -58,3 +58,6 @@ Temp Admin's are sent their time countdown on initplayerspawn.
 Converted Rcon to use net library instead of 3+ broken up console commands.
 Changed player meta functions on the server to properly reference player rank instead of relying on unreliable nwvars.
 Replaced instances of IsSuperAdmin that was missed in 5/4/15 update
+Converted Banlist to use vON instead of tabletokeyvalues.
+Fixed broken varibles in Rcon.
+Fixed broken varibles in IsBetterOrSame.

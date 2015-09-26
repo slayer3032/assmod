@@ -25,8 +25,6 @@ ASS_NewLogLevel("ASS_ACL_SETTING")
 
 local ChatLogFilter = { ASS_ACL_SPEECH, ASS_ACL_KILL_SILENT, ASS_ACL_JOIN_QUIT }
 
-function ASS_IsLan()	return !game.SinglePlayer() && (GetConVarNumber("sv_lan") != 0)	end
-
 // When a console command is run on a dedicated server, the PLAYER argument is a
 // NULL ENTITY. We setup this meta table so that the IsAdmin etc commands still work
 // and return the appropriate level.
@@ -69,7 +67,7 @@ end
 
 function PLAYER:SetAssLevel( RANK )	
 	self.ASSRank = RANK
-	self:SetNetworkedInt("ASS_isAdmin", RANK )
+	self:SetNetworkedInt("ASS_Rank", RANK )
 	
 	if ASS_RANKS[RANK].UserGroup then
 		self:SetUserGroup(ASS_RANKS[RANK].UserGroup)
@@ -204,7 +202,7 @@ function ASS_PlayerInitialSpawn( PLAYER )
 	
 	if (ASS_IsLan()) then 
 		PLAYER:SetNetworkedString("ASS_AssID", PLAYER:IPAddress())
-	else 
+	else
 		PLAYER:SetNetworkedString("ASS_AssID", PLAYER:SteamID64())
 	end 
 	

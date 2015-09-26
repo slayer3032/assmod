@@ -80,6 +80,7 @@ end
 if !file.IsDir("assmod", "DATA") then file.CreateDir("assmod") end
 if !file.IsDir("assmod/logs", "DATA") then file.CreateDir("assmod/logs") end
 if !file.IsDir("assmod/users", "DATA") then file.CreateDir("assmod/users") end
+if !file.IsDir("assmod/bans", "DATA") then file.CreateDir("assmod/bans") end
 ASS_Config = {}
 ASS_IncludeSharedFile("ass_default_config.lua")
 ASS_DefaultConfig = table.Copy(ASS_Config)

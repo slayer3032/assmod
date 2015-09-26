@@ -209,14 +209,13 @@ function ASS_Rcon(len, pl)
 		if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
 			pl.ASS_CurrentRcon = net.ReadString()
 			game.ConsoleCommand(pl.ASS_CurrentRcon .. "\n")
-			ASS_LogAction( PLAYER, ASS_ACL_RCON, "ran command \"" .. PLAYER.ASS_CurrentRcon .. "\"" )
-			PLAYER.ASS_CurrentRcon = nil
+			ASS_LogAction(pl, ASS_ACL_RCON, "ran command \"" .. pl.ASS_CurrentRcon .. "\"")
+			pl.ASS_CurrentRcon = nil
 		end
 	else	
 		ASS_MessagePlayer( PLAYER, "Access denied!")
 	end	
 end
-
 net.Receive("ass_rcon", ASS_Rcon)
 
 concommand.Add( "ASS_KickPlayer",	

@@ -545,7 +545,7 @@ end]]
 
 function ASS_Rcon(TEXT)
 	net.Start("ass_rcon")
-		net.WriteString(text)
+		net.WriteString(TEXT)
 	net.SendToServer()
 end
 
