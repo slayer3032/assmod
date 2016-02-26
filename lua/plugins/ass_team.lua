@@ -10,16 +10,17 @@ PLUGIN.ServerSide = true
 PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
-local Teams = {}
-Teams[TEAM_CONNECTING] 	= "Joining/Connecting"
-Teams[TEAM_UNASSIGNED] 	= "Unassigned"
-Teams[TEAM_SPECTATOR] 	= "Spectator"
+local Teams = nil
 
 if (SERVER) then
 
 	ASS_NewLogLevel("ASS_ACL_TEAM")
 	
 	function PLUGIN.SetTeam( PLAYER, CMD, ARGS )
+		
+		if !Teams or team.Count(Teams) < 0 then
+			Teams = team.GetAllTeams()
+		end
 
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 
@@ -36,7 +37,7 @@ if (SERVER) then
 			if (ASS_RunPluginFunction( "AllowTeamChange", true, PLAYER, TO_CHANGE, TEAM )) then
 
 				TO_CHANGE:SetTeam(TEAM)
-				ASS_LogAction( PLAYER, ASS_ACL_TEAM, "changed " .. ASS_FullNick(TO_CHANGE) .. " to team " .. (Teams[TEAM] or TEAM) )
+				ASS_LogAction( PLAYER, ASS_ACL_TEAM, "changed " .. ASS_FullNick(TO_CHANGE) .. " to team " .. (Teams[TEAM] and Teams[TEAM].Name or TEAM) )
 								
 			end
 
@@ -65,9 +66,13 @@ if (CLIENT) then
 	end
 	
 	function PLUGIN.TeamChoice(MENU, PLAYER)
+		
+		if !Teams or table.Count(Teams) < 0 then
+			Teams = team.GetAllTeams()
+		end
 
 		for k,v in pairs(Teams) do
-			MENU:AddOption( v, function() PLUGIN.SetTeam(PLAYER, k) end )
+			MENU:AddOption( v.Name, function() PLUGIN.SetTeam(PLAYER, k) end )
 		end
 	end
 
@@ -80,13 +85,4 @@ if (CLIENT) then
 end
 
 ASS_RegisterPlugin(PLUGIN)
-	
-// HACK: override the default team.SetUp so we can catch the Team setup that the gamemode uses.
-local oldTeamSetup = team.SetUp
-function team.SetUp( id, name, color )
-
-	Teams[id] = name
-	return oldTeamSetup(id, name, color)
-
-end
 
