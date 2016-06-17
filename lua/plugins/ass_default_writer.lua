@@ -31,14 +31,14 @@ function PLUGIN.AddToLog(PLAYER, ACL, ACTION)
 end
 
 function PLUGIN.LoadPlayerRank(pl)
-	if (ASS_Config["writer"] != PLUGIN.Name) then return false end
+	if (ASS_Config["writer"] != PLUGIN.Name) then return end
 	
-	if !pl then return false end
-	if !file.Exists("assmod/users/"..pl:AssID()..".txt", "DATA") then pl:InitLevel() return false end
+	if !pl then return end
+	if !file.Exists("assmod/users/"..pl:AssID()..".txt", "DATA") then pl:InitLevel() return end
 
 	local ranks = file.Read("assmod/users/"..pl:AssID()..".txt", "DATA")
 	
-	if (!ranks || ranks == "") then return false end
+	if (!ranks || ranks == "") then return end
 	
 	local tbl = von.deserialize(ranks)
 	

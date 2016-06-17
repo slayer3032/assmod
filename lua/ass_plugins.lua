@@ -187,10 +187,11 @@ concommand.Add("ASS_SetBanlistPlugin",
 					return
 				end
 
-				ASS_SaveRankings() // just in case everything goes wrong
 				ASS_Config["banlist"] = Name
 				ASS_SaveBanlist()
 				ASS_MessagePlayer(PL, "Banlist changed to " .. Name);
+				ASS_WriteConfig()
+				game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
 			else
 				ASS_MessagePlayer(PL, "Access denied!");
 			end
@@ -209,7 +210,7 @@ concommand.Add("ASS_SetBanlistPlugin",
 	)
 	concommand.Add("ASS_SetWriterPlugin",
 		function(PL,CMD,ARGS)
-			if (PL:HasLevel(ASS_LVL_SERVER_OWNER)) then
+			if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 				local Name = ARGS[1] or "Default Writer"
 				local Plugin = ASS_FindPlugin(Name)
 
@@ -227,10 +228,10 @@ concommand.Add("ASS_SetBanlistPlugin",
 					return
 				end
 
-				ASS_SaveRankings() // just in case everything goes wrong
 				ASS_Config["writer"] = Name
-				ASS_SaveRankings()
 				ASS_MessagePlayer(PL, "Writer changed to " .. Name);
+				ASS_WriteConfig()
+				game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
 			else
 				ASS_MessagePlayer(PL, "Access denied!");
 			end
