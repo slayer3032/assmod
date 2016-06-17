@@ -8,7 +8,6 @@ include("ass_von.lua")
 include("ass_config_mysql.lua")
 include("ass_shared.lua")
 include("ass_res.lua")
-include("ass_notice.lua")
 include("ass_admin.lua")
 
 // SERVER LOGGING STUFF
@@ -19,7 +18,7 @@ ASS_NewLogLevel("ASS_ACL_JOIN_QUIT")
 ASS_NewLogLevel("ASS_ACL_SPEECH")
 ASS_NewLogLevel("ASS_ACL_BAN_KICK")
 ASS_NewLogLevel("ASS_ACL_RCON")
-ASS_NewLogLevel("ASS_ACL_PROMOTE")
+ASS_NewLogLevel("ASS_ACL_SETLEVEL")
 ASS_NewLogLevel("ASS_ACL_ADMINSPEECH")
 ASS_NewLogLevel("ASS_ACL_SETTING")
 
@@ -77,7 +76,7 @@ function PLAYER:SetAssLevel( RANK )
 		if self.ASSPluginValues["ass_server"] then
 			if self.ASSPluginValues["ass_server"]["ta_expiry"] and self.ASSPluginValues["ass_server"]["ta_expiry"] > 0 then
 				self:SetNetworkedFloat("ASS_tempAdminExpiry", self.ASSPluginValues["ass_server"]["ta_expiry"] or 0)
-				ASS_NamedCountdown( self, "TempAdmin", "Temp Admin Expires in", self.ASSPluginValues["ass_server"]["ta_expiry"]-os.time() )
+				ASS_RunPluginFunction("Countdown", nil, "TempAdmin", "Temp Admin Expires in", self.ASSPluginValues["ass_server"]["ta_expiry"]-os.time(), self)
 			end
 		end
 	end
@@ -113,7 +112,7 @@ function PLAYER:GetAssAttribute(NAME, TYPE, DEFAULT)
 	local convertFunc = nil
 	if (TYPE == "string") then	convertFunc = tostring
 	elseif (TYPE == "number") then	convertFunc = tonumber
-	elseif (TYPE == "boolean") then	convertFunc = util.tobool
+	elseif (TYPE == "boolean") then	convertFunc = tobool
 	else
 		Msg("SetAssAttribute error - Type invalid\n")
 		return DEFAULT
@@ -161,15 +160,20 @@ function ASS_Initialize()
 	ASS_LoadPlugins()
 	ASS_LoadBanlist()
 	
-	util.AddNetworkString("ass_rcon")
-	
-	for k,v in pairs(ASS_Config["fixed_notices"]) do
-		ASS_AddNamedNotice( ASS_GenerateFixedNoticeName(v.text, v.duration), v.text or "", tonumber(v.duration) or 10)
-	end
+	util.AddNetworkString('ass_rcon')
+	util.AddNetworkString('ass_kickplayer')
+	util.AddNetworkString('ass_banplayer')
+	util.AddNetworkString('ass_unbanplayer')
+	util.AddNetworkString('ass_unbanlist')
+	util.AddNetworkString('ass_setlevel')
+	util.AddNetworkString('ass_setclienttell')
+	util.AddNetworkString('ass_initialize')
+	util.AddNetworkString('ass_countdown')
+	util.AddNetworkString('ass_removecountdown')
 end
 
 function ASS_InitPostEntity()
-	SetGlobalInt( "ASS_ClientTell", ASS_Config["tell_clients_what_happened"] or 1 )
+	SetGlobalBool( "ASS_ClientTell", ASS_Config["tell_clients_what_happened"] or 1 )
 end
 
 local NextAssThink = 0
@@ -179,60 +183,38 @@ function ASS_Think()
 		for _, ply in pairs( player.GetAll() ) do
 			if ply:GetAssLevel() == ASS_LVL_TEMPADMIN then
 				if (os.time() >= ply:GetTAExpiry() && ply:GetTAExpiry() != 0) then
-					ASS_LogAction(ply, ASS_ACL_PROMOTE, "Temp admin expired. Demoted to respected user.")
+					ASS_LogAction(ply, ASS_ACL_SETLEVEL, "Temp admin expired. Demoted to respected user.")
 
 					ply:SetAssLevel( ASS_LVL_RESPECTED )
-					ASS_RemoveCountdown( ply, "TempAdmin" )
+					ASS_RunPluginFunction("RemoveCountdown", nil, "TempAdmin", ply)
 
 					ASS_RunPluginFunction("SavePlayerRank", nil, ply)
 				end
 			end
 		end
-	
-		if #ASS_GetActiveNotices() > 0 then
-			SetGlobalString( "ServerTime", os.date("%H:%M:%S") )
-			SetGlobalString( "ServerDate", os.date("%d/%b/%Y") )	
-		end
+
 		NextAssThink = CurTime() + 1
 	end
 end
 
 function ASS_PlayerInitialSpawn( PLAYER )
-	PLAYER:ConCommand("ASS_CS_Initialize\n")
-	
-	if (ASS_IsLan()) then 
-		PLAYER:SetNetworkedString("ASS_AssID", PLAYER:IPAddress())
-	else
-		PLAYER:SetNetworkedString("ASS_AssID", PLAYER:SteamID64())
-	end 
+	net.Start('ass_initialize') net.Send(PLAYER)
+	PLAYER:SetNetworkedString("ASS_AssID", PLAYER:SteamID64())
+	PLAYER:InitLevel() --we just call this again when you get authed but until then you're a guest, this may cause issues if steam is down and assmod does things to you
 	
 	ASS_LogAction(PLAYER, ASS_ACL_JOIN_QUIT, "has joined")
 	
-	if (game.SinglePlayer() || PLAYER:IsListenServerHost()) then	
+	if PLAYER:IsListenServerHost() then	
 		PLAYER:SetAssLevel(ASS_LVL_SERVER_OWNER)
 		ASS_RunPluginFunction("SavePlayerRank", nil, PLAYER)	
-	else	
-		ASS_RunPluginFunction("LoadPlayerRank", nil, PLAYER)
 	end
-	
-	for k,v in pairs(ASS_GetActiveNotices()) do
-		ASS_SendNotice(PLAYER, v.Name, v.Text, v.Duration)
+end
+
+function ASS_PlayerAuthed(ply, sid)
+	if ply.SlowAuth then
+		ASS_MessagePlayer(ply, 'Assmod: Your profile has been loaded, steamauth was slow today...')
 	end
-	
-	if (#player.GetAll() <= 2 && !PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN) && util.tobool(ASS_Config["demomode"]) ) then
-		local TempAdminTime = (tonumber(ASS_Config["demomode_ta_time"]) or 1) *60 
-		PLAYER:SetAssLevel( ASS_LVL_TEMPADMIN )
-		PLAYER:SetTAExpiry( os.time() + TempAdminTime )
-
-		ASS_NamedCountdown( PLAYER, "TempAdmin", "Temp Admin Expires in", TempAdminTime )
-		ASS_RunPluginFunction("SavePlayerRank", nil, PLAYER)
-
-		ASS_MessagePlayer( PLAYER, "Welcome to the ASSMod demo. Congratulations - you've been granted temporary admin")
-		ASS_MessagePlayer( PLAYER, "Bind a key to +ASS_Menu to see the admin-menu (I recommend x):")
-		ASS_MessagePlayer( PLAYER, "bind x \"+ASS_Menu\"")
-	end
-
-	ASS_Debug( PLAYER:Nick() .. " has access level " .. PLAYER:GetAssLevel() .. "\n")
+	ASS_RunPluginFunction("LoadPlayerRank", nil, ply)
 end
 
 function ASS_PlayerDisconnect( PLAYER )
@@ -277,7 +259,7 @@ function ASS_FullNickLog( PLAYER )		return "\"" .. PLAYER:Nick() .. "\" (" .. PL
 function ASS_TellPlayers( PLAYER, ACL, ACTION )
 	for k,v in pairs(ChatLogFilter) do if (v == ACL) then return end end
 	
-	if (util.tobool(ASS_Config["tell_admins_what_happened"]) and util.tobool( ASS_Config["tell_clients_what_happened"])) then
+	if (tobool(ASS_Config["tell_admins_what_happened"]) and tobool( ASS_Config["tell_clients_what_happened"])) then
 		for _, pl in pairs(player.GetAll()) do
 			chat.AddText(pl, Color(0, 255, 0), PLAYER:Nick(), Color(255, 255, 255), " "..ACTION)
 		end
@@ -290,7 +272,7 @@ function ASS_TellPlayers( PLAYER, ACL, ACTION )
 	end	
 end
 
-function ASS_FindPlayerSteamOrIP( USERID )
+function ASS_FindPlayerAssID( USERID )
 	for _, pl in pairs(player.GetAll()) do
 
 		if (pl:AssID() == USERID) then
@@ -316,7 +298,7 @@ function ASS_FindPlayerUserID( USERID )
 		end
 	end
 	
-	return ASS_FindPlayerSteamOrIP(USERID)
+	return ASS_FindPlayerAssID(USERID)
 end
 
 function ASS_FindPlayerName( NAME )
@@ -351,37 +333,14 @@ function ASS_DropClient(uid, reason, ply)
 		game.ConsoleCommand("kickid "..uid.." "..reason.."\n")
 	end
 end
-
-// override kickid2 which is defined by Gmod - this is the console command fired off when you click
-// the kick button on the scoreboard
-concommand.Add( "kickid2", 		
-	function ( pl, cmd, args )
-		local id = args[1]
-		local reason = args[2] or "Kicked"
-			
-		for k,v in pairs(player.GetAll()) do
-			if (id == v:UserID()) then
-				ASS_KickPlayer(pl, v:AssID(), reason)
-				return	
-			end
-		end
-	end 
-)
-// override banid2 which is defined by Gmod - this is the console command fired off when you click
-// a ban button on the scoreboard
-concommand.Add( "banid2", 
-	function ( pl, cmd, args )
-		local length 	= args[1]
-		local id 		= args[2]
-			
-		for k,v in pairs(player.GetAll()) do
-			if (id == v:UserID()) then
-				ASS_BanPlayer(pl, v:AssID(), length, "")
-				return	
-			end
-		end
-	end 
-)
+	
+net.Receive('ass_initialize', function(len, pl)
+	ASS_RunPluginFunction("PlayerInitialized", nil, pl)
+	if !pl:IsFullyAuthenticated() then
+		ASS_MessagePlayer(pl, 'Assmod: Your profile is loading, waiting for steamauth...')
+		pl.SlowAuth = true
+	end
+end)
 	
 gameevent.Listen("player_connect")
 gameevent.Listen("player_disconnect")
@@ -389,6 +348,7 @@ hook.Add( "player_connect", "ASS_EventConnect", ASS_EventConnect)
 hook.Add( "player_disconnect", "ASS_EventDisconnect", ASS_EventDisconnect)
 
 hook.Add( "PlayerInitialSpawn", "ASS_PlayerInitialSpawn", ASS_PlayerInitialSpawn)
+hook.Add( "PlayerAuthed", "ASS_PlayerAuthed", ASS_PlayerAuthed)
 hook.Add( "PlayerDisconnected", "ASS_PlayerDisconnected", ASS_PlayerDisconnect)
 hook.Add( "InitPostEntity", "ASS_InitPostEntity", ASS_InitPostEntity)
 hook.Add( "Initialize", "ASS_Initialize", ASS_Initialize)

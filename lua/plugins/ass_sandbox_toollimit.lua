@@ -216,9 +216,6 @@ if (SERVER) then
 	function PLUGIN.SendAllowedList(PLAYER, CMD, ARGS)
 		
 		if (ARGS[1] == "tools") then
-		
-			ASS_BeginProgress( PLAYER, "ASS_ToolLimit", "Recieving tool data...", #PLUGIN.ToolList )
-
 			for k,v in pairs(PLUGIN.ToolList) do
 				if (PLAYER:HasAssLevel(v.LowestAllowedLevel)) then
 					umsg.Start( "ASS_SandBoxToolRestrict", PLAYER )
@@ -237,9 +234,6 @@ if (SERVER) then
 			umsg.End()
 			
 		elseif (ARGS[1] == "sweps") then
-		
-			ASS_BeginProgress( PLAYER, "ASS_SwepLimit", "Recieving weapon data...", #PLUGIN.SwepList )
-
 			for k,v in pairs(PLUGIN.SwepList) do
 				if (PLAYER:HasAssLevel(v.LowestAllowedLevel)) then
 					umsg.Start( "ASS_SandBoxToolRestrict", PLAYER )
@@ -258,8 +252,6 @@ if (SERVER) then
 			umsg.End()
 
 		elseif (ARGS[1] == "sents") then
-
-			ASS_BeginProgress( PLAYER, "ASS_SentLimit", "Recieving entity data...", #PLUGIN.SentList )
 
 			for k,v in pairs(PLUGIN.SentList) do
 				if (PLAYER:HasAssLevel(v.LowestAllowedLevel)) then
@@ -529,7 +521,6 @@ if (CLIENT) then
 			v.InternalName = UMSG:ReadString()
 			v.LowestAllowedLevel = UMSG:ReadShort()
 			if (typ == 0) then	
-				ASS_IncProgress("ASS_ToolLimit")
 				table.insert(PLUGIN.ToolList, v)
 				table.sort(PLUGIN.ToolList, function(a, b)
 					return tostring(a.InternalName) < tostring(b.InternalName)
@@ -542,13 +533,11 @@ if (CLIENT) then
 					v.DisplayName = wep.PrintName
 				end
 			
-				ASS_IncProgress("ASS_SwepLimit")
 				table.insert(PLUGIN.SwepList, v)
 				table.sort(PLUGIN.SwepList, function(a, b)
 					return tostring(a.DisplayName) < tostring(b.DisplayName)
 				end)
 			elseif (typ == 2) then	
-				ASS_IncProgress("ASS_SentLimit")
 				table.insert(PLUGIN.SentList, v)
 				table.sort(PLUGIN.SentList, function(a, b)
 					return tostring(a.DisplayName) < tostring(b.DisplayName)
@@ -564,17 +553,14 @@ if (CLIENT) then
 			TE:SetBackgroundBlur( true )
 			TE:SetDrawOnTop( true )
 			if (typ == 0) then
-				ASS_EndProgress("ASS_ToolLimit")
 				TE:SetTitle("Restrict Tools...")
 				TE:SetMode("tools", PLUGIN.ToolList)
 				PLUGIN.ToolList = nil
 			elseif (typ == 1) then
-				ASS_EndProgress("ASS_SwepLimit")
 				TE:SetTitle("Restrict Weapons...")
 				TE:SetMode("sweps", PLUGIN.SwepList)
 				PLUGIN.SwepList = nil
 			elseif (typ == 2) then
-				ASS_EndProgress("ASS_SentLimit")
 				TE:SetTitle("Restrict Entities...")
 				TE:SetMode("sents", PLUGIN.SentList)
 				PLUGIN.SentList = nil

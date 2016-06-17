@@ -67,16 +67,10 @@ if (SERVER) then
 	end
 	concommand.Add("ASS_SandboxChangeOption", PLUGIN.ChangeOption)
 
-	function PLUGIN.Registered()
-
-		hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn_" .. PLUGIN.Filename, 
-			function (PL) 
-				PLUGIN.RetrieveOptions(PL, "ASS_SandboxReadOptions", {} )
-			end
-		)
-		
+	function PLUGIN.PlayerInitialized(PLAYER)
+		PLUGIN.RetrieveOptions(PL, "ASS_SandboxReadOptions", {} )
 	end
-	
+
 	local META = FindMetaTable("Player")
 	if (META) then
 		META.ASS_Backup_CheckLimit = META.CheckLimit

@@ -4,7 +4,7 @@ function ASS_GetBanTable() return PlayerBans end
 function ASS_LoadBanlist(id) ASS_RunPluginFunction("LoadBanlist", nil, id) end
 function ASS_SaveBanlist(id) ASS_RunPluginFunction("SaveBanlist", nil, id) end
 
-function ASS_Promote( PLAYER, UNIQUEID, NEWRANK, TIME )
+function ASS_SetLevel( PLAYER, UNIQUEID, NEWRANK, TIME )
 	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 	
 		local TO_CHANGE = ASS_FindPlayer(UNIQUEID)
@@ -37,15 +37,15 @@ function ASS_Promote( PLAYER, UNIQUEID, NEWRANK, TIME )
 		if (NEWRANK == ASS_LVL_TEMPADMIN) then
 			if TIME != 0 then
 				TO_CHANGE:SetTAExpiry( os.time() + (TIME*60) )
-				ASS_NamedCountdown( TO_CHANGE, "TempAdmin", "Temp Admin Expires in", TIME * 60 )
+				ASS_RunPluginFunction("Countdown", nil, "TempAdmin", "Temp Admin Expires in", TIME*60)
 			end
 		else
-			ASS_RemoveCountdown( TO_CHANGE, "TempAdmin" )
+			ASS_RunPluginFunction("RemoveCountdown", nil, "TempAdmin", TO_CHANGE)
 		end
 		
 		TO_CHANGE:SetAssLevel( NEWRANK )
 		
-		ASS_LogAction( PLAYER, ASS_ACL_PROMOTE, action .. "d " .. ASS_FullNick(TO_CHANGE) .. " to " .. ASS_LevelToString(NEWRANK, tostring(TIME) .. " minutes") )
+		ASS_LogAction( PLAYER, ASS_ACL_SETLEVEL, action .. "d " .. ASS_FullNick(TO_CHANGE) .. " to " .. ASS_LevelToString(NEWRANK, tostring(TIME) .. " minutes") )
 		ASS_MessagePlayer(TO_CHANGE, action .. "d to " .. ASS_LevelToString(NEWRANK, tostring(TIME) .. " minutes") )
 		ASS_RunPluginFunction("SavePlayerRank", nil, TO_CHANGE)
 
@@ -54,21 +54,14 @@ function ASS_Promote( PLAYER, UNIQUEID, NEWRANK, TIME )
 	end
 end
 
-function ASS_UnBanPlayer( PLAYER, IS_IP, ID_OR_IP )
+function ASS_UnBanPlayer( PLAYER, ID )
 	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
-
-		if (ASS_RunPluginFunction( "AllowPlayerUnBan", true, PLAYER, IS_IP, ID_OR_IP )) then
-			if (IS_IP) then
-				ASS_LogAction(PLAYER, ASS_ACL_BAN_KICK, "unbanned \""..PlayerBans[ID_OR_IP].Name.."\" ("..ID_OR_IP ..") from admin \""..PlayerBans[ID_OR_IP].AdminName.."\"")
-			else
-				ASS_LogAction(PLAYER, ASS_ACL_BAN_KICK, "unbanned \""..PlayerBans[ID_OR_IP].Name.."\" ("..util.SteamIDFrom64(ID_OR_IP)..") from admin \""..PlayerBans[ID_OR_IP].AdminName.."\"")
-			end
-			
-			PlayerBans[ID_OR_IP] = nil
-			ASS_SaveBanlist(ID_OR_IP)
-			ASS_RunPluginFunction( "PlayerUnbanned", nil, PLAYER, IS_IP, ID_OR_IP )			
-		end
-		
+		if ASS_RunPluginFunction("AllowPlayerUnBan", true, PLAYER, ID) then
+			ASS_LogAction(PLAYER, ASS_ACL_BAN_KICK, "unbanned \""..PlayerBans[ID].Name.."\" ("..util.SteamIDFrom64(ID)..") from admin \""..PlayerBans[ID].AdminName.."\"")	
+			PlayerBans[ID] = nil
+			ASS_SaveBanlist(ID)
+			ASS_RunPluginFunction("PlayerUnbanned", nil, PLAYER, ID)			
+		end	
 	else	
 		ASS_MessagePlayer( PLAYER, "Access denied!")
 	end	
@@ -152,58 +145,6 @@ function ASS_KickPlayer( PLAYER, UNIQUEID, REASON )
 	end	
 end
 
-
-
---[[function ASS_RconBegin( PLAYER )
-	if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-		PLAYER.ASS_CurrentRcon = ""	
-	else
-		ASS_MessagePlayer( PLAYER, "Access denied!")
-	end
-end
-
-function ASS_RconEnd( PLAYER, TIME )
-	if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-		if (PLAYER.ASS_CurrentRcon && PLAYER.ASS_CurrentRcon != "") then	
-			if (TIME == 0) then
-				game.ConsoleCommand(PLAYER.ASS_CurrentRcon .. "\n")
-				ASS_LogAction( PLAYER, ASS_ACL_RCON, "executed \"" .. PLAYER.ASS_CurrentRcon .. "\"" )
-			else		
-				
-			end
-		end
-	
-		PLAYER.ASS_CurrentRcon = nil
-	else	
-		ASS_MessagePlayer( PLAYER, "Access denied!")
-	end
-end
-
-function ASS_Rcon( PLAYER, ARGS )
-	if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-		for k,v in pairs(ARGS) do	
-			PLAYER.ASS_CurrentRcon = PLAYER.ASS_CurrentRcon .. string.char(v)
-		end		
-	else	
-		ASS_MessagePlayer( PLAYER, "Access denied!")
-	end	
-end]]
---[[concommand.Add( "ASS_RconBegin",		
-	function (pl, cmd, args) 	
-		ASS_RconBegin( pl ) 	
-	end	
-)
-concommand.Add( "ASS_Rcon",		
-	function (pl, cmd, args) 	
-		ASS_Rcon( pl, args ) 	
-	end	
-)
-concommand.Add( "ASS_RconEnd",		
-	function (pl, cmd, args) 	
-		ASS_RconEnd( pl, tonumber(args[1]) or 0 ) 	
-	end	
-)]]
-
 function ASS_Rcon(len, pl)
 	if pl and pl:IsValid() then
 		if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
@@ -218,103 +159,126 @@ function ASS_Rcon(len, pl)
 end
 net.Receive("ass_rcon", ASS_Rcon)
 
-concommand.Add( "ASS_KickPlayer",	
-	function (pl, cmd, args) 	
-		local uid = args[1] 
-		table.remove(args, 1) 
-		ASS_KickPlayer( pl, uid, table.concat(args, " ") ) 	
-	end	
-)
-concommand.Add( "ASS_BanPlayer",	
-	function (pl, cmd, args) 	
-		local uid = args[1] 
-		local time = tonumber(args[2])
-		table.remove(args, 2) 
-		table.remove(args, 1) 
-		ASS_BanPlayer( pl, uid, time, table.concat(args, " ") ) 	
-	end	
-)
-concommand.Add( "ASS_UnBanPlayer",	
-	function (pl, cmd, args) 	
-		local uid = args[1]
-			
-		if tonumber(uid) then
-			uid = table.concat(args, "")
-			is_ip = false
-		else
-			uid = table.concat(args, "")
-			is_ip = true
-		end
-			
-		ASS_UnBanPlayer( pl, is_ip, uid ) 	
-	end	
-)
-concommand.Add( "ASS_UnbanList",
-		function (pl, cmd, args)
-			local n = 0
-			for id, entry in pairs(PlayerBans) do
-				n = n + 1
-			end
-			ASS_BeginProgress("ASS_BannedPlayer", "Receiving banned list...", n, 0)
-			for id, entry in pairs(PlayerBans) do
-				umsg.Start("ASS_BannedPlayer", pl)
-					umsg.String( entry.Name )
-					umsg.String( id )
-					umsg.String( entry.AdminName )
-				umsg.End()
-			end
-			umsg.Start("ASS_ShowBannedPlayerGUI", pl)
-			umsg.End()
-		end
-	)
-concommand.Add( "ASS_PromotePlayer",	
-		function (pl, cmd, args) 	
-			local uid = args[1] 
-			local rank = tonumber(args[2])
-			local time = tonumber(args[3]) or 60
-			ASS_Promote( pl, uid, rank, time) 	
-		end	
-	)
-concommand.Add( "ASS_GiveOwnership",	
-		function (pl, cmd, args) 	
-			if (pl:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-			
-				local other = ASS_FindPlayer(args[1])
-				
-				if (!other || !other:IsValid()) then
-					ASS_MessagePlayer(pl, "Invalid Player!")
-					return
-				end
-				
-				if (other != pl) then
-					other:SetAssLevel( ASS_LVL_SERVER_OWNER )
-					ASS_RunPluginFunction("SavePlayerRank", nil, other)
+local function kickplayer(len, pl)
+	if pl and pl:IsValid() then
+		local id = net.ReadString()
+		local reason = net.ReadString() or ' '
+		ASS_KickPlayer(pl, id, reason)
+	end
+end
+net.Receive('ass_kickplayer', kickplayer)
 
-					ASS_MessagePlayer(pl, "Ownership Given!")
-				else
-					ASS_MessagePlayer(pl, "You're an owner already!")
-				end
-			else
-				ASS_MessagePlayer(pl, "Access denied!")
-			end
-		end	
-	)
-concommand.Add("ASS_SetClientTell",function(PLAYER, CMD, ARGS)
-		if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-			if (tonumber(ARGS[1]) == 0) then
-				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "set clients to not be notified of admin actions")
+local function banplayer(len, pl)
+	if pl and pl:IsValid() then
+		local id = net.ReadString()
+		local time = net.ReadUInt(32)
+		local reason = net.ReadString() or ' '
+		ASS_BanPlayer(pl, id, time, reason)
+	end
+end
+net.Receive('ass_banplayer', banplayer)
+
+local function unbanplayer(len, pl)
+	if pl and pl:IsValid() then
+		local id = net.ReadString()
+		ASS_UnBanPlayer(pl, id)
+	end
+end
+net.Receive('ass_unbanplayer', unbanplayer)
+
+local function unbanlist(len, pl)
+	if pl and pl:IsValid() then
+		if pl:HasAssLevel(ASS_LVL_ADMIN) then
+			net.Start('ass_unbanlist')
+				net.WriteTable(PlayerBans)
+			net.Send(pl)
+		end
+	end
+end
+net.Receive('ass_unbanlist', unbanlist)
+
+local function setlevel(len, pl)
+	if pl and pl:IsValid() then
+		local id = net.ReadString()
+		local level = net.ReadUInt(8)
+		local time = net.ReadUInt(32) or 0
+		ASS_SetLevel(pl, id, level, time)
+	end
+end
+net.Receive('ass_setlevel', setlevel)
+
+local function clienttell(len, pl)
+	if pl and pl:IsValid() then
+		if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
+			local tell = net.ReadBool()
+			if !tell then
+				ASS_LogAction( pl, ASS_ACL_SETTING, "set clients to not be notified of admin actions")
 				ASS_Config["tell_clients_what_happened"] = 0
 				ASS_WriteConfig()
-				SetGlobalString( "ASS_ClientTell", tonumber(ARGS[1]) )
-			elseif (tonumber(ARGS[1]) == 1) then 
-				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "set clients to be notified of admin actions")
+				SetGlobalBool("ASS_ClientTell", tell)
+			elseif tell then 
+				ASS_LogAction( pl, ASS_ACL_SETTING, "set clients to be notified of admin actions")
 				ASS_Config["tell_clients_what_happened"] = 1
 				ASS_WriteConfig()
-				SetGlobalString( "ASS_ClientTell", tonumber(ARGS[1]) )
+				SetGlobalBool("ASS_ClientTell", tell)
+			end
+		end
+	end
+end
+net.Receive('ass_clienttell', clienttell)
+
+concommand.Add( "ASS_GiveOwnership",	
+	function (pl, cmd, args) 	
+		if (pl:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
+		
+			local other = ASS_FindPlayer(args[1])
+			
+			if (!other || !other:IsValid()) then
+				ASS_MessagePlayer(pl, "Invalid Player!")
+				return
+			end
+			
+			if (other != pl) then
+				other:SetAssLevel( ASS_LVL_SERVER_OWNER )
+				ASS_RunPluginFunction("SavePlayerRank", nil, other)
+
+				ASS_MessagePlayer(pl, "Ownership Given!")
+			else
+				ASS_MessagePlayer(pl, "You're an owner already!")
 			end
 		else
-			ASS_MessagePlayer( PLAYER, "Access denied!")
+			ASS_MessagePlayer(pl, "Access denied!")
 		end
-	
-	end
-	)
+	end	
+)
+
+// override kickid2 which is defined by Gmod - this is the console command fired off when you click
+// the kick button on the scoreboard
+concommand.Add( "kickid2", 		
+	function ( pl, cmd, args )
+		local id = args[1]
+		local reason = args[2] or "Kicked"
+			
+		for k,v in pairs(player.GetAll()) do
+			if (id == v:UserID()) then
+				ASS_KickPlayer(pl, v:AssID(), reason)
+				return	
+			end
+		end
+	end 
+)
+// override banid2 which is defined by Gmod - this is the console command fired off when you click
+// a ban button on the scoreboard
+concommand.Add( "banid2", 
+	function ( pl, cmd, args )
+		local length 	= args[1]
+		local id 		= args[2]
+			
+		for k,v in pairs(player.GetAll()) do
+			if (id == v:UserID()) then
+				ASS_BanPlayer(pl, v:AssID(), length, "")
+				return	
+			end
+		end
+	end 
+)

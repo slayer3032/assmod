@@ -105,9 +105,9 @@ if (SERVER) then
 	hook.Add("PlayerCanHearPlayersVoice", "PlayerCanHearPlayersVoice_" .. PLUGIN.Filename, function(listener, talker)
 		if !IsValid(talker) then return end
 		if talker.VoiceMuted then return false end
-		if util.tobool(ASS_Config["proximity_talk"]) then
+		if tobool(ASS_Config["proximity_talk"]) then
 			return true, true
-		elseif util.tobool(ASS_Config["alltalk"]) then
+		elseif tobool(ASS_Config["alltalk"]) then
 			return true
 		end
 	end)

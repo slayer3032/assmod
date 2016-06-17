@@ -61,3 +61,21 @@ Replaced instances of IsSuperAdmin that was missed in 5/4/15 update
 Converted Banlist to use vON instead of tabletokeyvalues.
 Fixed broken varibles in Rcon.
 Fixed broken varibles in IsBetterOrSame.
+
+-------------- 6/16/16 ----------------
+
+Fixed writer plugin commands
+Fixed writer plugin functions overwriting all other writer plugin's functions
+Converted all base commands over to net message
+Converted banlist menu over to net messages
+Removed IP_OR_ID/Lan/Singleplayer functionality
+Move Assmod Notices over to their own removeable plugin
+Removed Usermessage Progress Panels
+Trimmed down the Assmod Countdown 'libary'
+Converted countdowns to net messages
+Moved countdowns to a plugin and changed them to use the plugin functions
+Player levels aren't loaded until PlayerAuthed has been ran
+Assmod tells you when the steam servers are slow, if they are down you get kicked anyways...
+Converted map plugin to use net messages instead of a lot of usermessages
+Added a PlayerInitialized plugin call for after assmod is loaded
+Removed Demo Mode because it's not being utilized

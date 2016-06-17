@@ -4,50 +4,41 @@ include("ass_shared.lua")
 ASS_Initialized = false
 
 function ASS_BanPlayer( INFO )
-	if (!IsValid(INFO.Player)) then
-		return true
-	end
+	if !IsValid(INFO.Player) then return true end
 	
-	if (#INFO.Reason > 0) then
-		RunConsoleCommand("ASS_BanPlayer", INFO.Player:AssID(), INFO.Time, INFO.Reason) 
-	else
-		RunConsoleCommand("ASS_BanPlayer", INFO.Player:AssID(), INFO.Time) 
-	end
+	net.Start('ass_banplayer')
+		net.WriteString(INFO.Player:AssID())
+		net.WriteUInt(INFO.Time, 32)
+		net.WriteString(INFO.Reason or ' ')
+	net.SendToServer()
 	
 	return true
 end
 
 function ASS_KickPlayer( INFO )
-	if (!IsValid(INFO.Player)) then
-		return true
-	end
-
-	if (#INFO.Reason > 0) then
-		RunConsoleCommand("ASS_KickPlayer", INFO.Player:AssID(), INFO.Reason) 
-	else
-		RunConsoleCommand("ASS_KickPlayer", INFO.Player:AssID() ) 
-	end
+	if !IsValid(INFO.Player) then return true end
+	
+	net.Start('ass_kickplayer')
+		net.WriteString(INFO.Player:AssID())
+		net.WriteString(INFO.Reason or ' ')
+	net.SendToServer()
 	
 	return true
 end
 
-function ASS_SetAccess( PLAYER, LEVEL, TIME )
-
-	if (!IsValid(PLAYER)) then
-		return true
-	end
-
-	if (TIME) then
-		RunConsoleCommand("ASS_PromotePlayer", PLAYER:AssID(), LEVEL, TIME) 
-	else
-		RunConsoleCommand("ASS_PromotePlayer", PLAYER:AssID(), LEVEL) 
-	end
+function ASS_SetLevel(pl, level, time)
+	if !IsValid(pl) then return true end
 	
+	net.Start('ass_setlevel')
+		net.WriteString(pl:AssID())
+		net.WriteUInt(level, 8)
+		net.WriteUInt(time or 0, 32)
+	net.SendToServer()
+	
+	return true
 end
 
 function ASS_CustomReason(INFO)
-
-	--Derma_StringRequest( "Custom Reason...",
 	PromptStringRequest( "Custom Reason...",
 		"Why do you want to " .. INFO.Type .. " " .. INFO.Player:Nick() .. "?", 
 		"", 
@@ -58,12 +49,10 @@ function ASS_CustomReason(INFO)
 			INFO.Reason = strTextOut
 			INFO.Function(INFO)
 		end 
-	)
-	
+	)	
 end
 
 function ASS_KickBanReasonMenu( MENU, INFO )
-
 	INFO = INFO or {}
 
 	for k, v in pairs(ASS_Config["reasons"]) do
@@ -80,42 +69,31 @@ function ASS_KickBanReasonMenu( MENU, INFO )
 				ASS_CustomReason(INFO)
 			end
 		)
-
 end
 
 function ASS_BanTimeMenu( MENU, PLAYER )
-
-	for k, v in pairs(ASS_Config["ban_times"]) do
-		
+	for k, v in pairs(ASS_Config["ban_times"]) do	
 		local txt = v.name or ("Unnamed #" .. k)
-		
-		MENU:AddSubMenu( txt, nil, function(NEWMENU) ASS_KickBanReasonMenu( NEWMENU, { ["Type"] = "ban", ["Function"] = ASS_BanPlayer, ["Player"] = PLAYER, ["Time"] = v.time } ) end )
-		
+		MENU:AddSubMenu( txt, nil, function(NEWMENU) ASS_KickBanReasonMenu( NEWMENU, { ["Type"] = "ban", ["Function"] = ASS_BanPlayer, ["Player"] = PLAYER, ["Time"] = v.time } ) end )	
 	end
-
 end
 
 function ASS_KickReasonMenu( MENUITEM, PLAYER, INFO )
-
 	INFO = {}
 	INFO.Function = ASS_KickPlayer
 	INFO.Type = "kick"
 	INFO.Player = PLAYER
 	
 	ASS_KickBanReasonMenu(MENUITEM, INFO)
-
 end
 
 function ASS_TempAdminMenu( MENU, PLAYER )
-
 	for k, v in pairs(ASS_Config["temp_admin_times"]) do
-		MENU:AddOption(v.name, function() ASS_SetAccess(PLAYER, ASS_LVL_TEMPADMIN, v.time) end )
+		MENU:AddOption(v.name, function() ASS_SetLevel(PLAYER, ASS_LVL_TEMPADMIN, v.time) end )
 	end
-
 end
 
 function ASS_AccessMenu( SUBMENU, PLAYER )
-
 	local icontbl = table.Copy(ASS_RANKS)
 	
 	if (ASS_RANKS[PLAYER:GetAssLevel()]) then
@@ -128,32 +106,23 @@ function ASS_AccessMenu( SUBMENU, PLAYER )
 		if v.Name == "Temp Admin" then
 			Items[k] = SUBMENU:AddSubMenu("Temp Admin", nil, function(NEWMENU) ASS_TempAdminMenu(NEWMENU, PLAYER) end):SetImage(icontbl[k].Icon)
 		else
-			Items[k] = SUBMENU:AddOption(v.Name, function() ASS_SetAccess(PLAYER, k) end):SetImage(icontbl[k].Icon)
+			Items[k] = SUBMENU:AddOption(v.Name, function() ASS_SetLevel(PLAYER, k) end):SetImage(icontbl[k].Icon)
 		end
-	end
-	
+	end	
 end
 
-function ASS_TableContains( TAB, VAR )
-	
-	if (!TAB) then	
-	
-		return false	
-	
+function ASS_TableContains( TAB, VAR )	
+	if (!TAB) then		
+		return false		
 	end
 	
-	for k,v in pairs(TAB) do
-		
-		if (v == VAR) then 
-		
-			return true 
-		
+	for k,v in pairs(TAB) do	
+		if (v == VAR) then 	
+			return true 	
 		end
-	
 	end
 	
 	return false
-	
 end
 
 // Oh god this is going to be hacky 
@@ -165,7 +134,6 @@ function ASS_FixMenu( MENU )
 	// virus like among any DMenus spawned from this 
 	// parent DMenu.. muhaha
  	function DMenuOption_OnCursorEntered(self) 
- 	
  		local m = self.SubMenu
  		if (self.BuildFunction) then
  	 		m = DermaMenu( self ) 
@@ -176,14 +144,11 @@ function ASS_FixMenu( MENU )
 		end
 		
 		self.ParentMenu:OpenSubMenu( self, m )	 
- 	 
 	end 	
 	
 	// Menu item images!
 	function DMenuOption_SetImage(self, img)
-	
 		self.Image = ASS_Icon(img)
-	
 	end
 	
 	// Change the released hook so that if the click function
@@ -191,25 +156,20 @@ function ASS_FixMenu( MENU )
 	// get closed (this way menus can stay opened and be clicked
 	// several time).
 	function DMenuOption_OnMouseReleased( self, mousecode ) 
-
 		DButton.OnMouseReleased( self, mousecode ) 
 
 		if ( self.m_MenuClicking ) then 
-
 			self.m_MenuClicking = false 
 			
 			if (!self.ClickReturn) then
 				CloseDermaMenus() 
 			end
-
 		end 
-
 	end 
 	
 	// Make sure we draw the image, should be done in the skin
 	// but this is a total hack, so meh.
 	function DMenuOption_Paint(self, w, h)
-	
 		derma.SkinHook( "Paint", "MenuOption", self, w, h)
 		
 		if (self.Image) then
@@ -219,19 +179,18 @@ function ASS_FixMenu( MENU )
  		end
 		
 		return false
-	
 	end
 
  	// Make DMenuOptions implement our new functions above.
 	// Returns the new DMenuOption created.
 	local function DMenu_AddOption( self, strText, funcFunction )
-
  		local pnl = vgui.Create( "DMenuOption", self )
  		pnl.OnCursorEntered = DMenuOption_OnCursorEntered
 		pnl.OnMouseReleased = DMenuOption_OnMouseReleased
  		pnl.Paint = DMenuOption_Paint
  		pnl.SetImage = DMenuOption_SetImage
   		pnl:SetText( strText ) 
+
  		if ( funcFunction ) then 
  			pnl.DoClickInternal = function(self) 
  					self.ClickReturn = funcFunction(pnl) 
@@ -242,7 +201,6 @@ function ASS_FixMenu( MENU )
 		pnl:SetMenu( pnl )
  	 
  		return pnl 
- 
  	end	
 
 	// Make DMenuOptions implement our new functions above.
@@ -253,7 +211,6 @@ function ASS_FixMenu( MENU )
 	// Returns the new DMenu (if it exists), and the DMenuOption
 	// created.
 	local function DMenu_AddSubMenu( self, strText, funcFunction, openFunction ) 
-
 	 	local SubMenu = nil
 	 	if (!openFunction) then
 	 		SubMenu = DermaMenu( self ) 
@@ -270,6 +227,7 @@ function ASS_FixMenu( MENU )
 		pnl.BuildFunction = openFunction
 		pnl:SetSubMenu( SubMenu ) 
 		pnl:SetText( strText ) 
+
 		if ( funcFunction ) then 
 			pnl.DoClickInternal = function() pnl.ClickReturn = funcFunction(pnl) end
 		else 
@@ -283,9 +241,7 @@ function ASS_FixMenu( MENU )
 		else
 			return pnl
 		end
-
 	end 
-	
 	// Register our new hacked function. muhahah
 	MENU.AddOption = DMenu_AddOption
 	MENU.AddSubMenu = DMenu_AddSubMenu
@@ -297,8 +253,8 @@ end
 // I'd tidy it up, but I think it'd stop working, or break everything...
 // It's only the "IncludeAll" options that really screw it up actually,
 // but it adds soo much flexability it's totally worth it.
-function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 
+function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 	local arg = {...}
 
 	if (type(SUBMENU) != "Panel") then Msg("ASS_PlayerMenu: SUBMENU isn't a menu!\n") return end
@@ -467,23 +423,16 @@ function ASS_PlayerMenu( SUBMENU, OPTIONS, FUNCTION, ... )
 end
 
 function ASS_Plugins( SUBMENU )
-
 	ASS_RunPluginFunction("AddMenu", nil, SUBMENU )
 
 	if (#SUBMENU:GetCanvas():GetChildren() == 0) then
 		SUBMENU:AddOption("(none)", function() end)		
-	end
-	
+	end	
 end
 
 function ASS_Gamemodes( SUBMENU )
-
 	local function CheckGamemode(PLUGIN)
-	
-		return	PLUGIN.Gamemodes != nil &&
-			#PLUGIN.Gamemodes > 0 &&
-			ASS_PluginCheckGamemode(PLUGIN.Gamemodes)
-	
+		return PLUGIN.Gamemodes != nil and #PLUGIN.Gamemodes > 0 and ASS_PluginCheckGamemode(PLUGIN.Gamemodes)
 	end
 
 	ASS_RunPluginFunctionFiltered("AddGamemodeMenu", CheckGamemode, nil, SUBMENU )
@@ -491,19 +440,17 @@ function ASS_Gamemodes( SUBMENU )
 	if (#SUBMENU:GetCanvas():GetChildren() == 0) then
 		SUBMENU:AddOption("(none)", function() end)		
 	end
-	
 end
 
 function ASS_Settings( SUBMENU )
-	
 	if (LocalPlayer():HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 		
 		SUBMENU:AddSubMenu("Client Notifications", nil, function(MENU)
 			local Items = {}
-			Items[1] = MENU:AddOption("Yes", function() RunConsoleCommand("ASS_SetClientTell", "1") end )
-			Items[0] = MENU:AddOption("No",	function() RunConsoleCommand("ASS_SetClientTell", "0") end )
+			Items[1] = MENU:AddOption("Yes", function() net.Start('ass_clienttell') net.WriteBool(true) net.SendToServer() end )
+			Items[0] = MENU:AddOption("No",	function() net.Start('ass_clienttell') net.WriteBool(false) net.SendToServer() end )
 		
-			local Mode = GetGlobalInt("ASS_ClientTell")
+			local Mode = GetGlobalBool("ASS_ClientTell") and 1 or 0
 			if (Items[Mode]) then
 				Items[Mode]:SetImage("icon16/tick.png")
 			end
@@ -515,33 +462,7 @@ function ASS_Settings( SUBMENU )
 	end
 	
 	SUBMENU:AddOption( "Clear Config", function() ASS_Config = table.Copy(ASS_DefaultConfig) ASS_WriteConfig() end):SetImage("icon16/page_delete.png")
-	SUBMENU:AddOption( "Toggle Notice Bar", function() RunConsoleCommand("ass_togglenoticebar") end):SetImage("icon16/newspaper.png")
 end
-
---[[function ASS_Rcon(TEXT, TIME)
-
-	RunConsoleCommand("ASS_RconBegin" )
-	
-	local i = 1
-	while (i <= #TEXT) do
-
-		local args = {}
-		for j=i, i+6 do
-			if (j > #TEXT) then
-				break
-			end
-			args[j-i+1] = string.byte(TEXT, j)	
-		end
-				
-
-		RunConsoleCommand("ASS_Rcon", unpack(args) )
-
-		i = i + 7		
-	end
-	
-	RunConsoleCommand("ASS_RconEnd", (TIME or 0) )
-
-end]]
 
 function ASS_Rcon(TEXT)
 	net.Start("ass_rcon")
@@ -550,12 +471,10 @@ function ASS_Rcon(TEXT)
 end
 
 function ASS_RconEntry(MENUITEM)
-
 	PromptStringRequest( "Remote Command...", 
 		"What command do you want to execute?", 
 		"", 
 		function( TEXT ) 
-
 			local found = false
 			for k,v in pairs(ASS_Config["rcon"]) do
 				if (string.lower(v.cmd) == string.lower(TEXT)) then
@@ -570,44 +489,39 @@ function ASS_RconEntry(MENUITEM)
 			end
 			
 			ASS_Rcon(TEXT)
-
 		end 
-	)
-	
+	)	
 end
 
 function ASS_RconMenu( MENU )
-
 	MENU:AddOption( "Custom...", ASS_RconEntry )
 	MENU:AddSpacer()
 	for k,v in pairs(ASS_Config["rcon"]) do
 		MENU:AddOption( v.cmd, function(MENUITEM) ASS_Rcon(v.cmd) end )
 	end
-
 end
 
 function ASS_ShowUnbanList()
-	
+	local tblbans = net.ReadTable()
+	for k,v in pairs(tblbans) do
+		name = v.Name .. " (" .. util.SteamIDFrom64(k) .. ") *"..v.AdminName.."*"
+		table.insert( ASS_BannedPlayers, {Text = name, ID = k} )
+	end
 	PromptForChoice( "Unban a player...", ASS_BannedPlayers, 
 		function (DLG, ITEM)
 			
-			RunConsoleCommand("ASS_UnBanPlayer", ITEM.ID)
+			net.Start('ass_unbanplayer') net.WriteString(ITEM.ID) net.SendToServer()
 			DLG:RemoveItem(DLG.Selection)
 		
 		end
 	)
 	
 	ASS_BannedPlayers = nil
-	
 end
 
 function ASS_UnbanMenu( MENUITEM )
-
-	if (ASS_BannedPlayers) then return end
-	
 	ASS_BannedPlayers = {}
-	RunConsoleCommand("ASS_UnbanList")
-
+	net.Start('ass_unbanlist') net.SendToServer()
 end
 
 local IconsLoaded = {}
@@ -620,12 +534,10 @@ function ASS_Icon( img )
 end
 
 function ASS_ShowMenu()
-
 	local MENU = DermaMenu()
 	ASS_FixMenu(MENU)
 	
 	if (!LocalPlayer():HasAssLevel(ASS_LVL_TEMPADMIN)) then	
-
 		MENU:AddSubMenu("Settings", nil, ASS_Settings ):SetImage( "icon16/wrench.png" )
 		MENU:AddSpacer()
 		
@@ -633,10 +545,8 @@ function ASS_ShowMenu()
 		
 		if (#MENU:GetCanvas():GetChildren() == 0) then
 			return	
-		end
-		
+		end	
 	else
-	
 		local GamemodeImage = "icon16/sport_soccer.png"
 		if (GAMEMODE.ASS_MenuIcon) then
 			GamemodeImage = GAMEMODE.ASS_MenuIcon
@@ -655,7 +565,6 @@ function ASS_ShowMenu()
 		MENU:AddSubMenu( GAMEMODE.Name, nil, ASS_Gamemodes ):SetImage(GamemodeImage)
 
 		ASS_RunPluginFunction("AddMainMenu", nil, MENU )
-
 	end
 	
 	MENU:Open( 100, 100 )
@@ -663,221 +572,27 @@ function ASS_ShowMenu()
 	timer.Simple( 0, function() gui.SetMousePos(110, 110) end )
 	
 	ASS_Debug( "menu opened\n")
-
 end
 
 function ASS_HideMenu()
-
 	CloseDermaMenus()
 	ASS_Debug( "menu hiding\n")
 	ASS_MenuShowing = false
-
 end
 
-local CountDownPanel = nil
-local NoticePanel = nil
-
-function ASS_Countdown( NAME, TEXT, DURATION ) 
-	
-	if (!CountDownPanel) then 	
-		CountDownPanel = vgui.Create("DCountDownList")
-		if (NoticePanel) then
-			NoticePanel.CountDownPanel = CountDownPanel
-		end
-	end
-	
-	CountDownPanel:AddCountdown(NAME, TEXT, DURATION)
-	
-	if (NoticePanel) then	
-		NoticePanel:InvalidateLayout()
-	end
-end
-
-function ASS_RemoveCountdown( NAME ) 
-	
-	if (!CountDownPanel) then 
-		return 
-	end
-	
-	CountDownPanel:RemoveCountdown( NAME )
-	
-	if (NoticePanel) then	
-		NoticePanel:InvalidateLayout()
-	end
-end
-
-function ASS_BeginProgress( NAME, TEXT, MAXIMUM ) 
-	
-	if (MAXIMUM == 0) then
-		return 
-	end
-
-	if (!CountDownPanel) then 	
-		CountDownPanel = vgui.Create("DCountDownList")
-		if (NoticePanel) then
-			NoticePanel.CountDownPanel = CountDownPanel
-		end
-	end
-	
-	CountDownPanel:AddProgress(NAME, TEXT, MAXIMUM)
-	
-	if (NoticePanel) then	
-		NoticePanel:InvalidateLayout()
-	end
-end
-
-function ASS_IncProgress( NAME, INC ) 
-	
-	if (!CountDownPanel) then return end
-	
-	CountDownPanel:IncProgress(NAME, INC || 1)
-
-end
-
-function ASS_EndProgress( NAME ) 
-	
-	if (!CountDownPanel) then 
-		return 
-	end
-	
-	CountDownPanel:RemoveCountdown( NAME )
-	
-	if (NoticePanel) then	
-		NoticePanel:InvalidateLayout()
-	end
-
-end
-
-function ASS_ShouldShowNoticeBar()
-
-	if (GAMEMODE.ASS_HideNoticeBar) then
-		return false
-	end
-
-	return (tonumber(ASS_Config["show_notice_bar"]) or 1) == 1
-
-end
-
-function ASS_Notice( NAME, TEXT, DURATION ) 
-	
-	if (!NoticePanel) then 	
-		NoticePanel = vgui.Create("DNoticePanel")	
-		NoticePanel.CountDownPanel = CountDownPanel
-		NoticePanel:SetVisible( ASS_ShouldShowNoticeBar() )
-	end
-	
-	NoticePanel:AddNotice(NAME, TEXT, DURATION)
-end
-
-function ASS_RemoveNotice( NAME ) 
-	
-	if (!NoticePanel) then 	
-		return
-	end
-	
-	NoticePanel:RemoveNotice(NAME)
-end
-
-function ASS_ToggleNoticeBar( PLAYER, CMD, ARGS )
-
-	if (ASS_Config["show_notice_bar"] == 0) then
-		ASS_Config["show_notice_bar"] = 1
-		chat.AddText(Color(0, 229, 238), "Assmod notice bar enabled.")
-	else
-		ASS_Config["show_notice_bar"] = 0
-		chat.AddText(Color(0, 229, 238), "Assmod notice bar disabled.")
-	end
-	ASS_WriteConfig()
-	
-	if (NoticePanel) then
-		NoticePanel:SetVisible( ASS_ShouldShowNoticeBar() )
-	end
-
-end
-concommand.Add("ASS_ToggleNoticeBar", ASS_ToggleNoticeBar)
-
-function ASS_Initialize_A()
-
-	ASS_LoadPlugins()
-	
-end
-
-function ASS_Initialize_B()
-
+function ASS_Initialize()
 	if (ASS_Initialized) then return end
 
 	concommand.Add("+ASS_Menu", ASS_ShowMenu)
 	concommand.Add("-ASS_Menu", ASS_HideMenu)
 	
 	ASS_Init_Shared()
+	net.Start('ass_initialize') net.SendToServer()
 	
 	ASS_Initialized = true
-
 end
-concommand.Add("ASS_CS_Initialize", ASS_Initialize_B)
+net.Receive('ass_initialize', ASS_Initialize)	
+net.Receive('ass_unbanlist', ASS_ShowUnbanList)	
 
-usermessage.Hook( "ASS_BannedPlayer", 
-			function(UM)
-				ASS_IncProgress("ASS_BannedPlayer")
-				local name = UM:ReadString()
-				local id = UM:ReadString()
-				local aname = UM:ReadString()
-				
-				name = name .. " (" .. util.SteamIDFrom64(id) .. ") *"..aname.."*"
-				table.insert( ASS_BannedPlayers, { Text = name, ID = id, SteamID = util.SteamIDFrom64(id), AdminName = aname } )
-			end
-		)
-usermessage.Hook( "ASS_ShowBannedPlayerGUI", 
-			function(UM)
-				ASS_EndProgress("ASS_BannedPlayer")
-				ASS_ShowUnbanList()
-			end
-		)
-usermessage.Hook( "ASS_NamedCountdown", 
-			function(UM)
-				ASS_Countdown( UM:ReadString(), UM:ReadString(), UM:ReadFloat() )
-			end
-		)
-usermessage.Hook( "ASS_Countdown", 
-			function(UM)
-				ASS_Countdown( nil, UM:ReadString(), UM:ReadFloat() )
-			end
-		)
-usermessage.Hook( "ASS_RemoveCountdown", 
-			function(UM)
-				ASS_RemoveCountdown( UM:ReadString() )
-			end
-		)	
-usermessage.Hook( "ASS_NamedNotice", 
-			function(UM)
-				ASS_Notice( UM:ReadString(), UM:ReadString(), UM:ReadFloat() )
-			end
-		)
-usermessage.Hook( "ASS_Notice", 
-			function(UM)
-				ASS_Notice( nil, UM:ReadString(), UM:ReadFloat() )
-			end
-		)
-usermessage.Hook( "ASS_RemoveNotice", 
-			function(UM)
-				ASS_RemoveNotice( UM:ReadString() )
-			end
-		)	
-usermessage.Hook( "ASS_BeginProgress", 
-			function(UM)
-				ASS_BeginProgress( UM:ReadString(), UM:ReadString(), UM:ReadFloat() )
-			end
-		)
-usermessage.Hook( "ASS_IncProgress", 
-			function(UM)
-				ASS_IncProgress( UM:ReadString(), UM:ReadFloat() )
-			end
-		)
-usermessage.Hook( "ASS_EndProgress", 
-			function(UM)
-				ASS_EndProgress( UM:ReadString() )
-			end
-		)	
-hook.Add("Initialize", "ASS_Initialize", ASS_Initialize_A)
-
+hook.Add("Initialize", "ASS_Initialize", ASS_LoadPlugins)
 hook.Add("ChatText", "ASS_JoinLeaveSupress", function(pl,nick,txt,mtype) if mtype == "joinleave" then return true end end)

@@ -40,7 +40,7 @@ local function CreateTable()
 end
 
 function PLUGIN.LoadPlayerRank(pl)
-	if ASS_Config["writer"] != PLUGIN.Name then return false end
+	if ASS_Config["writer"] != PLUGIN.Name then return end
 	if !d:IsConnected() then d:Connect() end
 
 	if !TableFirstCheck then

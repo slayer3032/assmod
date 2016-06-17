@@ -28,10 +28,9 @@ if (SERVER) then
 		umsg.End()	
 	end
 	
-	function PLUGIN.PlayerInitialSpawn( PLAYER )
+	function PLUGIN.PlayerInitialized( PLAYER )
 		PLUGIN.SendDefaultNoclipSettings(PLAYER)
 	end
-	hook.Add("PlayerInitialSpawn", "PlayerInitialSpawn_" .. PLUGIN_FILENAME, PLUGIN.PlayerInitialSpawn)
 
 	function PLUGIN.PlayerSpawn( PLAYER )
 		PLAYER.ASS_Noclip = false

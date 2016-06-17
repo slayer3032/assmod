@@ -32,40 +32,6 @@ function PANEL:AddCountdown( NAME, TEXT, DURATION )
 
 end
 
-function PANEL:AddProgress( NAME, TEXT, MAX )
-	
-	for k,v in pairs(self.Panels) do
-
-		if (v.Name == NAME) then
-
-			v:Reset(TEXT, MAX)
-			self:InvalidateLayout()
-			return
-
-		end
-
-	end
-	
-	local newPanel = vgui.Create("DProgressPanel", self)
-	newPanel.Name = NAME
-	newPanel:Reset(TEXT, MAX)
-
-	table.insert(self.Panels, newPanel)
-	self:InvalidateLayout()
-end
-
-function PANEL:IncProgress( NAME, CURRENT )
-	for k,v in pairs(self.Panels) do
-		if (v.Name == NAME) then
-			v.Current = v.Current + (CURRENT || 1)
-			if (v.Current >= v.Max) then
-				self:RemoveCountdown(NAME)
-			end
-			break
-		end
-	end	
-end
-
 function PANEL:RemoveCountdown( name )
 
 	for k,v in pairs(self.Panels) do

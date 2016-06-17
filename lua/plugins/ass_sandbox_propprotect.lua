@@ -325,7 +325,7 @@ if (SERVER) then
 		end
 	end
 	
-	function PLUGIN.PlayerInitialSpawn(pl)
+	function PLUGIN.PlayerInitialized(pl)
 		pl.LastPPMessaged = 0
 		
 		if PlayerEntPending[pl:AssID()] then
@@ -367,7 +367,6 @@ if (SERVER) then
 		hook.Add("CanPlayerUnfreeze", 		"CanPlayerUnfreeze_" .. PLUGIN.Filename, 	PLUGIN.CanPlayerUnfreeze )
 		hook.Add("CanPlayerEnterVehicle", 	"CanPlayerEnterVehicle_" .. PLUGIN.Filename, 	PLUGIN.CanPlayerEnterVehicle )
 		hook.Add("PlayerUse", 			"PlayerUse_" .. PLUGIN.Filename, 		PLUGIN.PlayerUse )
-		hook.Add("PlayerInitialSpawn",	"PlayerInitialSpawn_" .. PLUGIN.Filename, PLUGIN.PlayerInitialSpawn )
 		hook.Add("PlayerDisconnected", "PlayerDisconnected_" .. PLUGIN.Filename, PLUGIN.PlayerDisconnected )
 
 		ASS_PP_SetOwner = PLUGIN.SetOwner

@@ -11,9 +11,6 @@ ASS_Config["tell_clients_what_happened"] = 1
 ASS_Config["alltalk"] = 0
 ASS_Config["proximity_talk"] = 0
 
-ASS_Config["demomode"] = 0
-ASS_Config["demomode_ta_time"] = 30
-
 ASS_Config["admin_speak_prefix"] = "@"
 
 ASS_Config["reasons"] = {

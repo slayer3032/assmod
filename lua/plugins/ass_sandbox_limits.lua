@@ -44,9 +44,6 @@ if (SERVER) then
 	end
 	
 	function PLUGIN.RetrieveLimits( PLAYER, CMD, ARGS )
-	
-		ASS_BeginProgress( PLAYER, "ASS_SandBoxLimit", "Recieving limit data...", #SandboxVars )
-
 		for k,v in pairs(SandboxVars) do
 			umsg.Start( "ASS_SandBoxLimit", PLAYER )
 			
@@ -254,15 +251,9 @@ if (CLIENT) then
 			v.var = UMSG:ReadString()
 			v.value = UMSG:ReadString()
 			table.insert(PLUGIN.SandboxVars, v)
-			
-			ASS_IncProgress("ASS_SandBoxLimit")
-			
 		end )
 	
 	usermessage.Hook( "ASS_SandBoxLimitGUI", function (UMSG)
-	
-			ASS_EndProgress("ASS_SandBoxLimit")
-		
 			local TE = vgui.Create("DChangeLimitsFrame")
 			TE:SetBackgroundBlur( true )
 			TE:SetDrawOnTop( true )

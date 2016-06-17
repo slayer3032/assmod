@@ -21,8 +21,6 @@ ASS_RANKS[255] = {Name = "Unwanted", Icon = "icon16/user_delete.png"}
 
 ASS_VERSION = "Assmod 2.4"
 
-function ASS_IsLan() return !game.SinglePlayer() && (GetConVarNumber("sv_lan") != 0) end
-
 function ASS_Init_Shared()
 	local PLAYER = FindMetaTable("Player")
 	
