@@ -9,9 +9,7 @@ PLUGIN.ServerSide = true
 PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
- --totally not copypaste of the old default writer code, I swear
 function PLUGIN.LoadBanlist()
-
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	if !file.Exists("assmod/bans/players.txt", "DATA") then file.Write("assmod/bans/players.txt", "") return end
 
@@ -23,12 +21,8 @@ function PLUGIN.LoadBanlist()
 	local bantable = von.deserialize(bans)
 
 	if (#bantable == 0) then return end
-
-	PrintTable(bantable)
 	
 	for k,v in pairs(bantable) do
-		print(k)
-		PrintTable(v)
 		bt[v.ID] = {}
 		bt[v.ID].Name = v.Name
 		bt[v.ID].AdminName = v.AdminName
@@ -40,7 +34,6 @@ function PLUGIN.LoadBanlist()
 end
 
 function PLUGIN.SaveBanlist(id)
-
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 
 	local bt = ASS_GetBanTable()
@@ -63,7 +56,6 @@ function PLUGIN.SaveBanlist(id)
 end
 
 function PLUGIN.RefreshBanlist()
-
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	
 	ASS_LoadBanlist()
@@ -81,7 +73,6 @@ function PLUGIN.RefreshBanlist()
 end
 
 function PLUGIN.CheckBanlist(id)
-
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	
 	PLUGIN.RefreshBanlist()
@@ -93,11 +84,9 @@ function PLUGIN.CheckBanlist(id)
 	else
 		return false
 	end
-	
 end
 
 function PLUGIN.CheckPassword(id, ip, svpass, clpass, name)
-
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	if svpass != "" and svpass != clpass then return false, "Incorrect password." end
 	
@@ -117,10 +106,12 @@ function PLUGIN.CheckPassword(id, ip, svpass, clpass, name)
 			return false, name .. " is banned. Time left: " .. string.NiceTime(biptbl.UnbanTime-os.time()) .. "\nReason: \"" .. biptbl.Reason .. "\""
 		end
 	end
-	
 end
 
-hook.Add("CheckPassword", "ASS_CheckPassword", PLUGIN.CheckPassword)
+function PLUGIN.Registered()
+	if ASS_Config["banlist"] != PLUGIN.Name then return end
+	hook.Add("CheckPassword", "ASS_CheckPassword", PLUGIN.CheckPassword)
+end
 
 ASS_RegisterPlugin(PLUGIN)
 

@@ -238,7 +238,7 @@ concommand.Add("ASS_SetBanlistPlugin",
 		end,
 		function(CMD,ARGS)
 			local f = ASS_AllPlugins(
-					function(plugin) return plugin.AddToLog && plugin.LoadPlayerRank && plugin.SavePlayerRank end
+					function(plugin) return plugin.AddToLog or plugin.LoadPlayerRank or plugin.SavePlayerRank end
 				)
 			local res = {}
 			for k,v in pairs(f) do

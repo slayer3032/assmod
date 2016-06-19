@@ -81,3 +81,18 @@ Assmod tells you when the steam servers are slow, if they are down you get kicke
 Converted map plugin to use net messages instead of a lot of usermessages
 Added a PlayerInitialized plugin call for after assmod is loaded
 Removed Demo Mode because it's not being utilized
+
+-------------- 6/16/16 ----------------
+
+Moved silkicons over to a workshop addon to greatly speed up resource downloads
+Fixed newly created temp admin notification from displaying on all clients
+Passed rank to the unused RankingChanged plugin call
+Cleaned up ass_shared of unneeded code
+Added checks on writers/banlists before running any hooks or requires inside of them
+Fixed errors related to MySQL plugins even when not using them
+Changed Client Tell varible over to net message bools instead of a GlobalBool
+Join/Quit messages go through TellPlayers instead of being seperate chat.AddTexts
+Switched Join/Quit logging to events
+TellPlayers/LogAction functions can take a string instead of a player
+Removed debug prints from banlist plugin
+Added FullNickLog back into logs.

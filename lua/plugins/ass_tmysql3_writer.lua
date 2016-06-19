@@ -9,10 +9,14 @@ PLUGIN.ServerSide = true
 PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
-require("tmysql")
-
-tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
 local TableFirstCheck = false
+
+function PLUGIN.Registered()
+	if ASS_Config["writer"] != PLUGIN.Name then return end
+
+	require("tmysql")
+	tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
+end
 
 function PLUGIN.AddToLog(PLAYER,ACL,ACTION)
 	if ASS_Config["writer"] != PLUGIN.Name then return end

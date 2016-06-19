@@ -11,6 +11,8 @@ PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
 if (SERVER) then
+	ASS_NewLogLevel("ASS_ACL_ADMINSPEECH")
+	
 	function ASS_AdminSpeech( PLAYER, TEXT, TEAMSPEAK )
 		local prefix = ASS_Config["admin_speak_prefix"]
 	

@@ -10,7 +10,6 @@ PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
 function PLUGIN.AddToLog(PLAYER, ACL, ACTION)
-
 	if (ASS_Config["writer"] != PLUGIN.Name) then return end
 	
 	local fn = "assmod/logs/" .. ACL .. ".txt"
@@ -24,10 +23,9 @@ function PLUGIN.AddToLog(PLAYER, ACL, ACTION)
 		end
 	end
 	
-	log = log .. os.time() .. " - " .. ASS_FullNick(PLAYER) .. " -> " .. ACTION .. "\n"
+	log = log .. os.time() .. " - " .. ASS_FullNickLog(PLAYER) .. " -> " .. ACTION .. "\n"
 	
 	file.Write(fn, log)
-
 end
 
 function PLUGIN.LoadPlayerRank(pl)

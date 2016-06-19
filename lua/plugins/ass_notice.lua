@@ -10,8 +10,34 @@ PLUGIN.ServerSide = true
 PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
-if (SERVER) then
+function ASS_FormatText( TEXT )
+	if (CLIENT) then
+		TEXT = string.Replace(TEXT, "%assmod%", ASS_VERSION )
 
+		TEXT = string.Replace(TEXT, "%cl_time%", os.date("%H:%M:%S") )
+		TEXT = string.Replace(TEXT, "%cl_date%",  os.date("%d/%b/%Y") )
+		TEXT = string.Replace(TEXT, "%cl_timedate%", os.date("%H:%M:%S") .. " " ..  os.date("%d/%b/%Y") )
+
+		TEXT = string.Replace(TEXT, "%sv_time%", GetGlobalString("ServerTime") )
+		TEXT = string.Replace(TEXT, "%sv_date%", GetGlobalString("ServerDate") )
+		TEXT = string.Replace(TEXT, "%sv_timedate%", GetGlobalString("ServerTime") .. " " .. GetGlobalString("ServerDate") )
+
+		TEXT = string.Replace(TEXT, "%hostname%", GetGlobalString( "ServerName" ) )
+		TEXT = string.gsub(TEXT, "%%%&([%w_]+)%%", GetConVarString)
+	end
+	if (SERVER) then
+		TEXT = string.Replace(TEXT, "%map%", game.GetMap() )
+		TEXT = string.Replace(TEXT, "%gamemode%", gmod.GetGamemode().Name )
+
+		TEXT = string.gsub(TEXT, "%%@([%w_]+)%%", GetConVarString)
+	end
+	
+	TEXT = ASS_RunPluginFunction("FormatText", TEXT, TEXT)
+
+	return TEXT
+end
+
+if (SERVER) then
 	ASS_NewLogLevel("ASS_ACL_NOTICE")
 
 	local ActiveNotices = {}

@@ -19,8 +19,8 @@ ASS_NewLogLevel("ASS_ACL_SPEECH")
 ASS_NewLogLevel("ASS_ACL_BAN_KICK")
 ASS_NewLogLevel("ASS_ACL_RCON")
 ASS_NewLogLevel("ASS_ACL_SETLEVEL")
-ASS_NewLogLevel("ASS_ACL_ADMINSPEECH")
 ASS_NewLogLevel("ASS_ACL_SETTING")
+ASS_NewLogLevel("ASS_ACL_MESSAGE")
 
 local ChatLogFilter = { ASS_ACL_SPEECH, ASS_ACL_KILL_SILENT, ASS_ACL_JOIN_QUIT }
 
@@ -68,7 +68,7 @@ function PLAYER:SetAssLevel( RANK )
 	self.ASSRank = RANK
 	self:SetNetworkedInt("ASS_Rank", RANK )
 	
-	if ASS_RANKS[RANK].UserGroup then
+	if ASS_RANKS[RANK].UserGroup and !ASS_NoUserGroups then
 		self:SetUserGroup(ASS_RANKS[RANK].UserGroup)
 	end
 	
@@ -82,7 +82,7 @@ function PLAYER:SetAssLevel( RANK )
 	end
 	
 	ASS_Debug( self:Nick() .. " given level " .. self:GetAssLevel() .. "\n")
-	ASS_RunPluginFunction( "RankingChanged", nil, self )
+	ASS_RunPluginFunction("RankingChanged", nil, self , RANK)
 end
 
 function PLAYER:SetAssAttribute(NAME, VALUE)
@@ -166,14 +166,10 @@ function ASS_Initialize()
 	util.AddNetworkString('ass_unbanplayer')
 	util.AddNetworkString('ass_unbanlist')
 	util.AddNetworkString('ass_setlevel')
-	util.AddNetworkString('ass_setclienttell')
+	util.AddNetworkString('ass_clienttell')
 	util.AddNetworkString('ass_initialize')
 	util.AddNetworkString('ass_countdown')
 	util.AddNetworkString('ass_removecountdown')
-end
-
-function ASS_InitPostEntity()
-	SetGlobalBool( "ASS_ClientTell", ASS_Config["tell_clients_what_happened"] or 1 )
 end
 
 local NextAssThink = 0
@@ -184,10 +180,8 @@ function ASS_Think()
 			if ply:GetAssLevel() == ASS_LVL_TEMPADMIN then
 				if (os.time() >= ply:GetTAExpiry() && ply:GetTAExpiry() != 0) then
 					ASS_LogAction(ply, ASS_ACL_SETLEVEL, "Temp admin expired. Demoted to respected user.")
-
 					ply:SetAssLevel( ASS_LVL_RESPECTED )
 					ASS_RunPluginFunction("RemoveCountdown", nil, "TempAdmin", ply)
-
 					ASS_RunPluginFunction("SavePlayerRank", nil, ply)
 				end
 			end
@@ -202,8 +196,6 @@ function ASS_PlayerInitialSpawn( PLAYER )
 	PLAYER:SetNetworkedString("ASS_AssID", PLAYER:SteamID64())
 	PLAYER:InitLevel() --we just call this again when you get authed but until then you're a guest, this may cause issues if steam is down and assmod does things to you
 	
-	ASS_LogAction(PLAYER, ASS_ACL_JOIN_QUIT, "has joined")
-	
 	if PLAYER:IsListenServerHost() then	
 		PLAYER:SetAssLevel(ASS_LVL_SERVER_OWNER)
 		ASS_RunPluginFunction("SavePlayerRank", nil, PLAYER)	
@@ -217,21 +209,15 @@ function ASS_PlayerAuthed(ply, sid)
 	ASS_RunPluginFunction("LoadPlayerRank", nil, ply)
 end
 
-function ASS_PlayerDisconnect( PLAYER )
-	ASS_LogAction( PLAYER, ASS_ACL_JOIN_QUIT, "disconnected" )
-end
-
 function ASS_EventConnect( TBL )
-	for _, pl in pairs(player.GetAll()) do
-		chat.AddText(pl, Color(0, 255, 0), TBL.name, Color(255, 255, 255), " joined the server")
-	end
+	ASS_TellPlayers(TBL.name, ASS_ACL_MESSAGE, "joined the server")
+	ASS_LogAction("\'"..TBL.name.."\' ("..TBL.networkid.." | "..util.SteamIDTo64(TBL.networkid).." | " .. TBL.address .. ")", ASS_ACL_JOIN_QUIT, " connected")
 	ASS_RunPluginFunction("PlayerConnect", nil, TBL)	
 end
 
 function ASS_EventDisconnect( TBL )
-	for _, pl in pairs(player.GetAll()) do
-		chat.AddText(pl, Color(0, 255, 0), TBL.name, Color(255, 255, 255), " left the server")
-	end
+	ASS_TellPlayers(TBL.name, ASS_ACL_MESSAGE, "left the server")
+	ASS_LogAction("\'"..TBL.name.."\' ("..TBL.networkid.." | "..util.SteamIDTo64(TBL.networkid)..")", ASS_ACL_JOIN_QUIT, " disconnected (Reason: "..TBL.reason..")")
 	ASS_RunPluginFunction("PlayerDisonnect", nil, TBL)	
 end
 
@@ -244,29 +230,41 @@ function ASS_PlayerSpeech( PLAYER, TEXT, TEAMSPEAK )
 end
 
 function ASS_LogAction( PLAYER, ACL, ACTION )
-	Msg( PLAYER:Nick() .. " -> " .. ACTION .. "\n")
+	if type(PLAYER) == "string" then
+		Msg( PLAYER .. " -> " .. ACTION .. "\n")
+	else
+		Msg( PLAYER:Nick() .. " -> " .. ACTION .. "\n")
+	end
+	
 	ASS_TellPlayers(PLAYER, ACL, ACTION)
 	ASS_RunPluginFunction("AddToLog", nil, PLAYER, ACL, ACTION)
+end
+
+function ASS_FullNick( PLAYER )	
+	if type(PLAYER) == "string" then return PLAYER end
+	return "\'" .. PLAYER:Nick() .. "\' (" .. PLAYER:SteamID() .. " | " .. ASS_LevelToString(PLAYER:GetAssLevel()) .. ")"
+end
+
+function ASS_FullNickLog( PLAYER )
+	if type(PLAYER) == "string" then return PLAYER end
+	return "\'" .. PLAYER:Nick() .. "\' (" .. PLAYER:SteamID() .. " | "..PLAYER:SteamID64().."] | " .. PLAYER:IPAddress() .. ")"
 end
 
 function ASS_MessagePlayer( PLAYER, MESSAGE )
 	chat.AddText(PLAYER, Color(0, 229, 238), MESSAGE)
 end
 
-function ASS_FullNick( PLAYER )		return "\"" .. PLAYER:Nick() .. "\" (" .. PLAYER:SteamID() .. " | " .. ASS_LevelToString(PLAYER:GetAssLevel()) .. ")"		end
-function ASS_FullNickLog( PLAYER )		return "\"" .. PLAYER:Nick() .. "\" (" .. PLAYER:SteamID() .. " | " .. PLAYER:IPAddress() .. ")"		end
-
-function ASS_TellPlayers( PLAYER, ACL, ACTION )
+function ASS_TellPlayers( PLAYER, ACL, ACTION, BYPASS)
 	for k,v in pairs(ChatLogFilter) do if (v == ACL) then return end end
-	
+
 	if (tobool(ASS_Config["tell_admins_what_happened"]) and tobool( ASS_Config["tell_clients_what_happened"])) then
 		for _, pl in pairs(player.GetAll()) do
-			chat.AddText(pl, Color(0, 255, 0), PLAYER:Nick(), Color(255, 255, 255), " "..ACTION)
+			chat.AddText(pl, Color(0, 255, 0), (type(PLAYER) == "string" and PLAYER) or PLAYER:Nick(), Color(255, 255, 255), " "..ACTION)
 		end
 	else
 		for _, pl in pairs(player.GetAll()) do
-			if pl:HasAssLevel(ASS_LVL_TEMPADMIN) then
-				chat.AddText(pl, Color(0, 255, 0), PLAYER:Nick(), Color(255, 255, 255), " "..ACTION)
+			if pl:HasAssLevel(ASS_LVL_TEMPADMIN) or BYPASS then
+				chat.AddText(pl, Color(0, 255, 0), (type(PLAYER) == "string" and PLAYER) or PLAYER:Nick(), Color(255, 255, 255), " "..ACTION)
 			end
 		end
 	end	
@@ -274,11 +272,9 @@ end
 
 function ASS_FindPlayerAssID( USERID )
 	for _, pl in pairs(player.GetAll()) do
-
 		if (pl:AssID() == USERID) then
 			return pl
 		end
-
 	end
 
 	return nil
@@ -288,13 +284,9 @@ function ASS_FindPlayerUserID( USERID )
 	local UID = tonumber(USERID)
 	if (UID) then
 		for _, pl in pairs(player.GetAll()) do
-	
 			if (pl:UserID() == UID) then
-		
 				return pl
-		
 			end
-	
 		end
 	end
 	
@@ -340,6 +332,9 @@ net.Receive('ass_initialize', function(len, pl)
 		ASS_MessagePlayer(pl, 'Assmod: Your profile is loading, waiting for steamauth...')
 		pl.SlowAuth = true
 	end
+	net.Start('ass_clienttell')
+		net.WriteBool(true and ASS_Config["tell_clients_what_happened"] or false)
+	net.Send(player.GetAll())
 end)
 	
 gameevent.Listen("player_connect")
@@ -349,8 +344,6 @@ hook.Add( "player_disconnect", "ASS_EventDisconnect", ASS_EventDisconnect)
 
 hook.Add( "PlayerInitialSpawn", "ASS_PlayerInitialSpawn", ASS_PlayerInitialSpawn)
 hook.Add( "PlayerAuthed", "ASS_PlayerAuthed", ASS_PlayerAuthed)
-hook.Add( "PlayerDisconnected", "ASS_PlayerDisconnected", ASS_PlayerDisconnect)
-hook.Add( "InitPostEntity", "ASS_InitPostEntity", ASS_InitPostEntity)
 hook.Add( "Initialize", "ASS_Initialize", ASS_Initialize)
 hook.Add( "Think", "ASS_Think", ASS_Think)
 hook.Add( "PlayerSay", "ASS_PlayerSpeech", ASS_PlayerSpeech)

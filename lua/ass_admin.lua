@@ -37,7 +37,7 @@ function ASS_SetLevel( PLAYER, UNIQUEID, NEWRANK, TIME )
 		if (NEWRANK == ASS_LVL_TEMPADMIN) then
 			if TIME != 0 then
 				TO_CHANGE:SetTAExpiry( os.time() + (TIME*60) )
-				ASS_RunPluginFunction("Countdown", nil, "TempAdmin", "Temp Admin Expires in", TIME*60)
+				ASS_RunPluginFunction("Countdown", nil, "TempAdmin", "Temp Admin Expires in", TIME*60, TO_CHANGE)
 			end
 		else
 			ASS_RunPluginFunction("RemoveCountdown", nil, "TempAdmin", TO_CHANGE)
@@ -211,17 +211,13 @@ local function clienttell(len, pl)
 	if pl and pl:IsValid() then
 		if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
 			local tell = net.ReadBool()
-			if !tell then
-				ASS_LogAction( pl, ASS_ACL_SETTING, "set clients to not be notified of admin actions")
-				ASS_Config["tell_clients_what_happened"] = 0
-				ASS_WriteConfig()
-				SetGlobalBool("ASS_ClientTell", tell)
-			elseif tell then 
-				ASS_LogAction( pl, ASS_ACL_SETTING, "set clients to be notified of admin actions")
-				ASS_Config["tell_clients_what_happened"] = 1
-				ASS_WriteConfig()
-				SetGlobalBool("ASS_ClientTell", tell)
-			end
+			local text = (tell and "") or "not "
+			ASS_LogAction( pl, ASS_ACL_SETTING, "set clients to "..text.."be notified of admin actions")
+			ASS_Config["tell_clients_what_happened"] = tell and 1 or 0
+			ASS_WriteConfig()
+			net.Start('ass_clienttell')
+				net.WriteBool(tell)
+			net.Send(player.GetAll())
 		end
 	end
 end

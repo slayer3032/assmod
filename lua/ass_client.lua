@@ -442,6 +442,7 @@ function ASS_Gamemodes( SUBMENU )
 	end
 end
 
+local clienttell = true
 function ASS_Settings( SUBMENU )
 	if (LocalPlayer():HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 		
@@ -450,7 +451,7 @@ function ASS_Settings( SUBMENU )
 			Items[1] = MENU:AddOption("Yes", function() net.Start('ass_clienttell') net.WriteBool(true) net.SendToServer() end )
 			Items[0] = MENU:AddOption("No",	function() net.Start('ass_clienttell') net.WriteBool(false) net.SendToServer() end )
 		
-			local Mode = GetGlobalBool("ASS_ClientTell") and 1 or 0
+			local Mode = clienttell and 1 or 0
 			if (Items[Mode]) then
 				Items[Mode]:SetImage("icon16/tick.png")
 			end
@@ -591,8 +592,9 @@ function ASS_Initialize()
 	
 	ASS_Initialized = true
 end
-net.Receive('ass_initialize', ASS_Initialize)	
-net.Receive('ass_unbanlist', ASS_ShowUnbanList)	
+net.Receive('ass_clienttell', function() clienttell = net.ReadBool() end)
+net.Receive('ass_initialize', ASS_Initialize)
+net.Receive('ass_unbanlist', ASS_ShowUnbanList)
 
 hook.Add("Initialize", "ASS_Initialize", ASS_LoadPlugins)
 hook.Add("ChatText", "ASS_JoinLeaveSupress", function(pl,nick,txt,mtype) if mtype == "joinleave" then return true end end)

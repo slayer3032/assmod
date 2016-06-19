@@ -9,11 +9,15 @@ PLUGIN.ServerSide = true
 PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
-require("tmysql4")
-
-local d,e = tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
-if e then ErrorNoHalt("Error connecting to database: "..e) end
 local TableFirstCheck = false
+
+function PLUGIN.Registered()
+	if ASS_Config["writer"] != PLUGIN.Name then return end
+	require("tmysql4")
+
+	local d,e = tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
+	if e then ErrorNoHalt("Error connecting to database: "..e) end
+end
 
 function PLUGIN.AddToLog(PLAYER,ACL,ACTION)
 	if ASS_Config["writer"] != PLUGIN.Name then return end

@@ -1,6 +1,5 @@
 
-function ASS_InitResources()
-
+--[[function ASS_InitResources()
 	resource.AddFile("materials/icon16/tick.png")
 	resource.AddFile("materials/icon16/group.png")
 	resource.AddFile("materials/icon16/user.png")
@@ -65,5 +64,8 @@ function ASS_InitResources()
 	resource.AddFile("materials/icon16/comment_delete.png")
 	resource.AddFile("materials/icon16/transmit.png")
 	resource.AddFile("materials/icon16/group_link.png")
-	
+end]]
+
+function ASS_InitResources()
+	resource.AddWorkshop('705780343')
 end
