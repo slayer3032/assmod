@@ -168,83 +168,120 @@ function ASS_LoadPlugins( DIR )
 end
 
 concommand.Add("ASS_SetBanlistPlugin",
-		function(PL,CMD,ARGS)
-			if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-				local Name = ARGS[1] or "Default Banlist"
-				local Plugin = ASS_FindPlugin(Name)
+	function(PL,CMD,ARGS)
+		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
+			local Name = ARGS[1] or "Default Banlist"
+			local Plugin = ASS_FindPlugin(Name)
 
-				if (!Plugin) then
-					ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
-					return
-				end
-				if (!Plugin.LoadBanlist || !Plugin.SaveBanlist || !Plugin.CheckPassword) then
-					ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a banlist plugin!");
-					return
-				end
-				
-				if (ASS_Config["banlist"] == Name) then
-					ASS_MessagePlayer(PL, " banlist already set to " .. Name);
-					return
-				end
+			if (!Plugin) then
+				ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
+				return
+			end
+			if (!Plugin.LoadBanlist || !Plugin.SaveBanlist || !Plugin.CheckPassword) then
+				ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a banlist plugin!");
+				return
+			end
+			
+			if (ASS_Config["banlist"] == Name) then
+				ASS_MessagePlayer(PL, " banlist already set to " .. Name);
+				return
+			end
 
-				ASS_Config["banlist"] = Name
-				ASS_SaveBanlist()
-				ASS_MessagePlayer(PL, "Banlist changed to " .. Name);
-				ASS_WriteConfig()
-				game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
-			else
-				ASS_MessagePlayer(PL, "Access denied!");
-			end
-		end,
-		function(CMD,ARGS)
-			local f = ASS_AllPlugins(
-					function(plugin) return plugin.SaveBanlist && plugin.LoadBanlist && plugin.CheckBanlist && plugin.RefreshBanlist && plugin.CheckPassword end
-				)
-			local res = {}
-			for k,v in pairs(f) do
-				table.insert(res, "ASS_SetBanlistPlugin \"" .. v.Name .. "\"")
-			end
-			table.insert(res, "dummy")
-			return res
+			ASS_Config["banlist"] = Name
+			ASS_SaveBanlist()
+			ASS_MessagePlayer(PL, "Banlist changed to " .. Name);
+			ASS_WriteConfig()
+			game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
+		else
+			ASS_MessagePlayer(PL, "Access denied!");
 		end
-	)
-	concommand.Add("ASS_SetWriterPlugin",
-		function(PL,CMD,ARGS)
-			if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-				local Name = ARGS[1] or "Default Writer"
-				local Plugin = ASS_FindPlugin(Name)
-
-				if (!Plugin) then
-					ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
-					return
-				end
-				if (!Plugin.AddToLog || !Plugin.LoadPlayerRank || !Plugin.SavePlayerRank) then
-					ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a writer plugin!");
-					return
-				end
-				
-				if (ASS_Config["writer"] == Name) then
-					ASS_MessagePlayer(PL, "Writer already set to " .. Name);
-					return
-				end
-
-				ASS_Config["writer"] = Name
-				ASS_MessagePlayer(PL, "Writer changed to " .. Name);
-				ASS_WriteConfig()
-				game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
-			else
-				ASS_MessagePlayer(PL, "Access denied!");
-			end
-		end,
-		function(CMD,ARGS)
-			local f = ASS_AllPlugins(
-					function(plugin) return plugin.AddToLog or plugin.LoadPlayerRank or plugin.SavePlayerRank end
-				)
-			local res = {}
-			for k,v in pairs(f) do
-				table.insert(res, "ASS_SetWriterPlugin \"" .. v.Name .. "\"")
-			end
-			table.insert(res, "dummy")
-			return res
+	end,
+	function(CMD,ARGS)
+		local f = ASS_AllPlugins(
+				function(plugin) return plugin.SaveBanlist && plugin.LoadBanlist && plugin.CheckBanlist && plugin.RefreshBanlist && plugin.CheckPassword end
+			)
+		local res = {}
+		for k,v in pairs(f) do
+			table.insert(res, "ASS_SetBanlistPlugin \"" .. v.Name .. "\"")
 		end
-	)
+		table.insert(res, "dummy")
+		return res
+	end)
+concommand.Add("ASS_SetWriterPlugin",
+	function(PL,CMD,ARGS)
+		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
+			local Name = ARGS[1] or "Default Writer"
+			local Plugin = ASS_FindPlugin(Name)
+
+			if (!Plugin) then
+				ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
+				return
+			end
+			if (!Plugin.AddToLog || !Plugin.LoadPlayerRank || !Plugin.SavePlayerRank) then
+				ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a writer plugin!");
+				return
+			end
+			
+			if (ASS_Config["writer"] == Name) then
+				ASS_MessagePlayer(PL, "Writer already set to " .. Name);
+				return
+			end
+
+			ASS_Config["writer"] = Name
+			ASS_MessagePlayer(PL, "Writer changed to " .. Name);
+			ASS_WriteConfig()
+			game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
+		else
+			ASS_MessagePlayer(PL, "Access denied!");
+		end
+	end,
+	function(CMD,ARGS)
+		local f = ASS_AllPlugins(
+				function(plugin) return plugin.AddToLog or plugin.LoadPlayerRank or plugin.SavePlayerRank end
+			)
+		local res = {}
+		for k,v in pairs(f) do
+			table.insert(res, "ASS_SetWriterPlugin \"" .. v.Name .. "\"")
+		end
+		table.insert(res, "dummy")
+		return res
+	end)
+concommand.Add("ASS_SetLoggerPlugin",
+	function(PL,CMD,ARGS)
+		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
+			local Name = ARGS[1] or "Default Logger"
+			local Plugin = ASS_FindPlugin(Name)
+
+			if (!Plugin) then
+				ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
+				return
+			end
+			if (!Plugin.AddToLog) then
+				ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a logger plugin!");
+				return
+			end
+			
+			if (ASS_Config["logger"] == Name) then
+				ASS_MessagePlayer(PL, "Writer already set to " .. Name);
+				return
+			end
+
+			ASS_Config["logger"] = Name
+			ASS_MessagePlayer(PL, "Writer changed to " .. Name);
+			ASS_WriteConfig()
+			game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
+		else
+			ASS_MessagePlayer(PL, "Access denied!");
+		end
+	end,
+	function(CMD,ARGS)
+		local f = ASS_AllPlugins(
+				function(plugin) return plugin.AddToLog end
+			)
+		local res = {}
+		for k,v in pairs(f) do
+			table.insert(res, "ASS_SetWriterPlugin \"" .. v.Name .. "\"")
+		end
+		table.insert(res, "dummy")
+		return res
+	end)

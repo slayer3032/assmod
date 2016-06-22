@@ -1,6 +1,7 @@
 
-ASS_Config["writer"] = "Default Writer"
-ASS_Config["banlist"] = "Default Banlist"
+ASS_Config["writer"] = "default"
+ASS_Config["banlist"] = "default"
+ASS_Config["logger"] = "default"
 ASS_Config["max_temp_admin_time"] = 	4 * 60
 ASS_Config["max_temp_admin_ban_time"] = 1 * 60
 
