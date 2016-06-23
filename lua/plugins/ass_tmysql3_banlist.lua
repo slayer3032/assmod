@@ -1,6 +1,6 @@
 local PLUGIN = {}
 
-PLUGIN.Name = "TMySQL4 Banlist"
+PLUGIN.Name = "TMySQL3 Banlist"
 PLUGIN.Author = "Slayer3032"
 PLUGIN.Date = "21st June 2016"
 PLUGIN.Filename = PLUGIN_FILENAME
@@ -12,9 +12,12 @@ PLUGIN.Gamemodes = {}
 local d,e
 
 local function CreateTable()
-	if !d then ErrorNoHalt("ASS Banlist -> Cannot create ass_bans table! MySQL could not connect to database!") chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot create ass_bans table!") end
-	if !d:IsConnected() then ErrorNoHalt("ASS Banlist -> Cannot create ass_bans table! MySQL not connected!") end
-	d:Query("CREATE TABLE ass_bans (id BIGINT UNSIGNED NOT NULL,name TEXT NOT NULL,unbantime INT NOT NULL DEFAULT 0,reason TEXT NOT NULL,adminname TEXT NOT NULL,adminid BIGINT UNSIGNED NOT NULL,PRIMARY KEY (id))")
+	tmysql.query("CREATE TABLE ass_bans (id BIGINT UNSIGNED NOT NULL,name TEXT NOT NULL,unbantime INT NOT NULL DEFAULT 0,reason TEXT NOT NULL,adminname TEXT NOT NULL,adminid BIGINT UNSIGNED NOT NULL,PRIMARY KEY (id))",function(res,status,err)
+		if status == QUERY_FAIL then
+			ErrorNoHalt("ASS Banlist -> Cannot create ass_bans table! "..err)
+			chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot create ass_bans table!")
+		end
+	end)
 end
 
 local function dropreason(name, time, reason)
@@ -26,42 +29,47 @@ local function dropreason(name, time, reason)
 end
 
 function PLUGIN.Registered()
-	if ASS_Config["banlist"] != PLUGIN.Name then return end
+	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	if ASS_Config["banlist_caching"] == nil then
 		ASS_Config["banlist_caching"] = true
 		ASS_WriteConfig()
 	end
 
-	require("tmysql4")
+	require("tmysql")
 	hook.Add("CheckPassword", "ASS_CheckPassword", PLUGIN.CheckPassword)
 	hook.Add("PlayerInitialSpawn", "ASS_SpawnBanCheck", function(pl) PLUGIN.CheckPlayer(pl:SteamID64()) end)
 
-	if !ASS_TMySQL4_DB then 
+	if !ASS_TMySQL3_DB then 
 		d,e = tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
-		ASS_TMySQL4_DB = d
-		print("ASS Banlist -> TMySQL4 connection initalized!")
+		ASS_TMySQL3_DB = d
+		print("ASS Banlist -> TMySQL3 connection initalized!")
 	else
-		d = ASS_TMySQL4_DB
+		d = ASS_TMySQL3_DB
 	end
-	if e then
-		ErrorNoHalt("ASS Banlist -> Error connecting to database: "..e or "error")
-		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Error connecting to database!")
-	else
-		d:Query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='"..ASS_MySQLInfo.DB.."' AND TABLE_NAME='ass_bans'",function(res)
-			if !res[1] then ErrorNoHalt("ASS Banlist -> Unable to retrieve query results!") end
-			if !res[1].status then ErrorNoHalt("ASS Banlist -> Error checking for ban table: "..res[1].error) end
-			if !res[1].data[1] then
+	if d then
+		tmysql.query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='"..ASS_MySQLInfo.DB.."' AND TABLE_NAME='ass_bans'",function(res,status,err)
+			if !res then ErrorNoHalt("ASS Banlist -> Unable to retrieve query results!"..err) end
+			if status == QUERY_FAIL then ErrorNoHalt("ASS Banlist -> Error checking for ban table: "..err) end
+			if !res[1] or !res[1]["TABLE_NAME"] then
 				print("ASS Banlist -> Could not find ass_bans table in "..ASS_MySQLInfo.DB.."! Creating...")
 				CreateTable()
 			end
-			if res[1].data[1] then
-				print("ASS Banlist -> TMySQL4 Banlist initalized!")
-				if ASS_Config["banlist_caching"] then
-					PLUGIN.LoadBanlist()
-					timer.Create("ASS_MySQL_BanRefresh", 90, 0, PLUGIN.LoadBanlist)
+			
+			if res[1] then
+				if res[1]["TABLE_NAME"] then
+					print("ASS Banlist -> TMySQL3 Banlist initalized!")
+					if ASS_Config["banlist_caching"] then
+						PLUGIN.LoadBanlist()
+						timer.Create("ASS_MySQL_BanRefresh", 90, 0, PLUGIN.LoadBanlist)
+					end
+				else
+					ErrorNoHalt("ASS Banlist -> Error checking for ban table: "..err)
 				end
 			end
-		end)
+		end,QUERY_FLAG_ASSOC)
+	else
+		ErrorNoHalt("ASS Banlist -> Error connecting to database: "..e or "error")
+		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Error connecting to database!")
 	end
 end
 
@@ -69,15 +77,12 @@ function PLUGIN.LoadBanlist()
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 
 	if d then
-		if !d:IsConnected() then d:Connect() end
+		tmysql.query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans",function(res,status,err)
+			if !res then error("ASS Banlist -> Unable to retrieve query results!") end
+			if status == QUERY_FAIL then error("ASS Banlist -> Unable to load banlist: "..err) chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot load banlist! MySQL Error!") end
 
-		d:Query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans",function(res)
-			if !res[1] then error("ASS Banlist -> Unable to retrieve query results!") end
-			if !res[1].status then error("ASS Banlist -> Error with loading banlist query: "..res[1].error) end
-			if res[1].error then error("ASS Banlist -> Unable to load banlist: "..error) chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot load banlist! MySQL Error!") end
-
-			if res[1].data then
-				local x = res[1].data
+			if res then
+				local x = res
 				local bt = ASS_GetBanTable()
 				for k,v in pairs(x) do
 					bt[tostring(v["id"])] = {}
@@ -91,7 +96,7 @@ function PLUGIN.LoadBanlist()
 					end
 				end
 			end
-		end)
+		end,QUERY_FLAG_ASSOC)
 	else
 		ErrorNoHalt("ASS Banlist -> Cannot load banlist! MySQL could not connect to database!")
 		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot load banlist! MySQL could not connect to database!")
@@ -110,8 +115,7 @@ function PLUGIN.PlayerBan(admin, pl, time, reason)
 	bt[pl:SteamID64()].Reason = reason
 
 	if d then
-		if !d:IsConnected() then d:Connect() end
-		d:Query("INSERT INTO ass_bans (id,name,unbantime,reason,adminname,adminid) VALUES("..pl:SteamID64()..",'"..pl:Nick().."',"..time..",'"..reason.."','"..admin:Nick().."',"..admin:SteamID64()..") ON DUPLICATE KEY UPDATE name='"..pl:Nick().."',unbantime="..time..",reason='"..reason.."',adminname='"..admin:Nick().."',adminid="..admin:SteamID64())
+		tmysql.query("INSERT INTO ass_bans (id,name,unbantime,reason,adminname,adminid) VALUES("..pl:SteamID64()..",'"..pl:Nick().."',"..time..",'"..reason.."','"..admin:Nick().."',"..admin:SteamID64()..") ON DUPLICATE KEY UPDATE name='"..pl:Nick().."',unbantime="..time..",reason='"..reason.."',adminname='"..admin:Nick().."',adminid="..admin:SteamID64())
 	else
 		ErrorNoHalt("ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
 		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
@@ -127,15 +131,15 @@ function PLUGIN.PlayerUnban(id, admin)
 	end
 
 	if d then
-		d:Query("DELETE FROM ass_bans WHERE id="..id, function(res) 
-			if !res[1].error then
+		tmysql.query("DELETE FROM ass_bans WHERE id="..id, function(res,status,err) 
+			if !err then
 				if IsValid(admin) then ASS_MessagePlayer(admin, "ASS Banlist -> Unable to remove ban. MySQL Error!") end
-				error("ASS Banlist -> Unable to remove ban: "..res[1].error)
+				error("ASS Banlist -> Unable to remove ban: "..err)
 			end
 		end)
 	else
-		ErrorNoHalt("ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
-		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
+		ErrorNoHalt("ASS Banlist -> Cannot unban player! MySQL could not connect to database!")
+		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot unban player! MySQL could not connect to database!")
 	end
 end
 
@@ -143,19 +147,19 @@ function PLUGIN.QueryBanlist(id)
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 
 	if d then
-		d:Query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans WHERE id='"..id.."'",function(res)
-			if !res[1] then ErrorNoHalt("ASS Banlist -> Unable to retrieve query results!") end
-			if !res[1].status then ErrorNoHalt("ASS Banlist -> Error checking for ban table: "..res[1].error) end
+		tmysql.query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans WHERE id='"..id.."'",function(res,status,err)
+			if !res then ErrorNoHalt("ASS Banlist -> Unable to retrieve query results!") end
+			if status == QUERY_FAIL then ErrorNoHalt("ASS Banlist -> Error checking for ban table: "..err) end
 
 			local bt = ASS_GetBanTable()
-			if !res[1].data[1] then
+			if !res[1] then
 				if bt[id] then
 					bt[id] = nil
 				end
 			end
-			if res[1].data[1] then
+			if res[1] then
 				if !bt[id] then
-					local x = res[1].data[1]
+					local x = res[1]
 					bt[id] = {}
 					bt[id].Name = tostring(x["name"])
 					bt[id].UnbanTime = tonumber(x["unbantime"])
@@ -165,7 +169,7 @@ function PLUGIN.QueryBanlist(id)
 					PLUGIN.CheckPlayer(id)
 				end
 			end
-		end)
+		end,QUERY_FLAG_ASSOC)
 	else
 		ErrorNoHalt("ASS Banlist -> QueryBanlist failed! MySQL could not connect to database!")
 		chat.AddText(Color(0, 229, 238), "ASS Banlist -> QueryBanlist failed! MySQL could not connect to database!")

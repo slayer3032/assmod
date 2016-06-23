@@ -53,6 +53,7 @@ CONSOLE = nil
 local PLAYER = FindMetaTable("Player")
 
 function PLAYER:InitLevel(tbl)
+	if !IsValid(self) then return end
 	if tbl then
 		self.ASSPluginValues = tbl.ASSPluginValues or {}
 		self.ASSGuest = false
@@ -158,7 +159,6 @@ PLAYER = nil
 function ASS_Initialize()
 	ASS_InitResources()
 	ASS_LoadPlugins()
-	ASS_LoadBanlist()
 	
 	util.AddNetworkString('ass_rcon')
 	util.AddNetworkString('ass_kickplayer')
@@ -193,7 +193,6 @@ end
 
 function ASS_PlayerInitialSpawn( PLAYER )
 	net.Start('ass_initialize') net.Send(PLAYER)
-	PLAYER:SetNetworkedString("ASS_AssID", PLAYER:SteamID64())
 	PLAYER:InitLevel() --we just call this again when you get authed but until then you're a guest, this may cause issues if steam is down and assmod does things to you
 	
 	if PLAYER:IsListenServerHost() then	
@@ -257,7 +256,7 @@ end
 function ASS_TellPlayers( PLAYER, ACL, ACTION, BYPASS)
 	for k,v in pairs(ChatLogFilter) do if (v == ACL) then return end end
 
-	if (tobool(ASS_Config["tell_admins_what_happened"]) and tobool( ASS_Config["tell_clients_what_happened"])) then
+	if (ASS_Config["tell_admins_what_happened"] and ASS_Config["tell_clients_what_happened"]) then
 		for _, pl in pairs(player.GetAll()) do
 			chat.AddText(pl, Color(0, 255, 0), (type(PLAYER) == "string" and PLAYER) or PLAYER:Nick(), Color(255, 255, 255), " "..ACTION)
 		end
@@ -270,16 +269,6 @@ function ASS_TellPlayers( PLAYER, ACL, ACTION, BYPASS)
 	end	
 end
 
-function ASS_FindPlayerAssID( USERID )
-	for _, pl in pairs(player.GetAll()) do
-		if (pl:AssID() == USERID) then
-			return pl
-		end
-	end
-
-	return nil
-end
-
 function ASS_FindPlayerUserID( USERID )
 	local UID = tonumber(USERID)
 	if (UID) then
@@ -290,7 +279,7 @@ function ASS_FindPlayerUserID( USERID )
 		end
 	end
 	
-	return ASS_FindPlayerAssID(USERID)
+	return nil
 end
 
 function ASS_FindPlayerName( NAME )
@@ -320,9 +309,9 @@ end
 
 function ASS_DropClient(uid, reason, ply)
 	if ply then
-		game.ConsoleCommand("kickid"..ply:UserID().."You were kicked with reason: "..reason.."\n")
+		game.KickID(ply:UserID(), reason)
 	else
-		game.ConsoleCommand("kickid "..uid.." "..reason.."\n")
+		game.KickID(uid, reason)
 	end
 end
 	
@@ -333,8 +322,8 @@ net.Receive('ass_initialize', function(len, pl)
 		pl.SlowAuth = true
 	end
 	net.Start('ass_clienttell')
-		net.WriteBool(true and ASS_Config["tell_clients_what_happened"] or false)
-	net.Send(player.GetAll())
+		net.WriteBool(ASS_Config["tell_clients_what_happened"])
+	net.Send(pl)
 end)
 	
 gameevent.Listen("player_connect")

@@ -5,7 +5,7 @@ PLUGIN.Name = "Admin Speech"
 PLUGIN.Author = "Andy Vincent"
 PLUGIN.Date = "09th August 2007"
 PLUGIN.Filename = PLUGIN_FILENAME
-PLUGIN.ClientSide = true
+PLUGIN.ClientSide = false
 PLUGIN.ServerSide = true
 PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
@@ -18,6 +18,7 @@ if (SERVER) then
 	
 		if (!prefix || prefix == "") then
 			prefix = "@"
+			ASS_Config["admin_speak_prefix"] = prefix
 		end
 	
 		local prefixlen = #prefix

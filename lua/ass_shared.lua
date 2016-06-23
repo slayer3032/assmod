@@ -25,7 +25,7 @@ function ASS_Init_Shared()
 	local PLAYER = FindMetaTable("Player")
 	
 	function PLAYER:GetTAExpiry(n) return self:GetNetworkedFloat("ASS_tempAdminExpiry", 0) end
-	function PLAYER:AssID() return self:GetNetworkedString("ASS_AssID")	end
+	function PLAYER:AssID() return self:SteamID64() or self:UserID() end
 	
 	if (SERVER) then
 		function PLAYER:GetAssLevel() return (self.ASSRank or ASS_LVL_GUEST) end
@@ -115,4 +115,5 @@ end
 
 ASS_IncludeSharedFile("ass_plugins.lua")
 ASS_IncludeSharedFile("ass_debug.lua")
+ASS_IncludeSharedFile("ass_von.lua")
 ASS_IncludeSharedFile("ass_config.lua")

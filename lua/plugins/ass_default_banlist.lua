@@ -30,10 +30,9 @@ function PLUGIN.LoadBanlist()
 		bt[v.ID].UnbanTime = v.UnbanTime
 		bt[v.ID].Reason	= v.Reason
 	end
-	
 end
 
-function PLUGIN.SaveBanlist(id)
+function PLUGIN.SaveBanlist()
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 
 	local bt = ASS_GetBanTable()
@@ -52,24 +51,48 @@ function PLUGIN.SaveBanlist(id)
 
 	local bans = von.serialize( bantbl )
 	file.Write("assmod/bans/players.txt", bans)
-	
 end
 
 function PLUGIN.RefreshBanlist()
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	
-	ASS_LoadBanlist()
+	PLUGIN.LoadBanlist()
 	local bt = ASS_GetBanTable()
+	local savetime = nil
 
 	if bt then
 		for k, v in pairs(bt) do
 			if (v.UnbanTime < os.time() && v.UnbanTime != 0) then
 				bt[k] = nil
-				ASS_SaveBanlist()
+				savetime = true
 			end
 		end
+		if savetime then
+			PLUGIN.SaveBanlist()
+		end	
 	end
-	
+end
+
+function PLUGIN.PlayerBan(admin, pl, time, reason)
+	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
+	PLUGIN.RefreshBanlist()
+
+	local PlayerBans = ASS_GetBanTable()
+	PlayerBans[pl:AssID()] = {}
+	PlayerBans[pl:AssID()].Name = pl:Nick()
+	PlayerBans[pl:AssID()].AdminName = admin:Nick()
+	PlayerBans[pl:AssID()].AdminID = admin:SteamID64()
+	PlayerBans[pl:AssID()].UnbanTime = os.time()+(time*60) --no more source magic minute, writeid bullshit
+	PlayerBans[pl:AssID()].Reason = time
+
+	PLUGIN.SaveBanlist()
+end
+
+function PLUGIN.PlayerUnban(admin, id)
+	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
+	local PlayerBans = ASS_GetBanTable()
+	PlayerBans[ID] = nil
+	PLUGIN.SaveBanlist()
 end
 
 function PLUGIN.CheckBanlist(id)
@@ -86,12 +109,24 @@ function PLUGIN.CheckBanlist(id)
 	end
 end
 
+function PLUGIN.CheckPlayer(id)
+	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
+	if ASS_GetBanTable()[id] then
+		local btbl = ASS_GetBanTable()[id]
+		if btbl.UnbanTime > os.time() or btbl.UnbanTime == 0 then
+			print("ASS Banlist -> Player ban loaded for "..btbl.Name.."("..id.."), dropping client...")
+			ASS_DropClient(util.SteamIDFrom64(id), dropreason(btbl.Name, btbl.UnbanTime, btbl.Reason))
+		else
+			PLUGIN.PlayerUnban(id)
+		end
+	end
+end
+
 function PLUGIN.CheckPassword(id, ip, svpass, clpass, name)
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	if svpass != "" and svpass != clpass then return false, "Incorrect password." end
 	
 	local btbl = PLUGIN.CheckBanlist(id)
-	local biptbl = PLUGIN.CheckBanlist(ip)
 	
 	if btbl then
 		if btbl.UnbanTime == 0 then
@@ -99,20 +134,14 @@ function PLUGIN.CheckPassword(id, ip, svpass, clpass, name)
 		elseif btbl.UnbanTime > os.time() then
 			return false, name .. " is banned. Time left: " .. string.NiceTime(btbl.UnbanTime-os.time()) .. "\nReason: \"" .. btbl.Reason .. "\""
 		end
-	elseif biptbl then
-		if biptbl.UnbanTime == 0 then
-			return false, name .. " is permanently banned. \nReason: \"" .. biptbl.Reason .. "\""
-		elseif btbl.UnbanTime > os.time() then
-			return false, name .. " is banned. Time left: " .. string.NiceTime(biptbl.UnbanTime-os.time()) .. "\nReason: \"" .. biptbl.Reason .. "\""
-		end
 	end
 end
 
 function PLUGIN.Registered()
-	if ASS_Config["banlist"] != PLUGIN.Name then return end
+	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	hook.Add("CheckPassword", "ASS_CheckPassword", PLUGIN.CheckPassword)
+	hook.Add("Initialize", "ASS_LoadBanlist", PLUGIN.LoadBanlist)
+	hook.Add("PlayerInitialSpawn", "ASS_SpawnBanCheck", function(pl) PLUGIN.CheckPlayer(pl:SteamID64()) end)
 end
 
 ASS_RegisterPlugin(PLUGIN)
-
-

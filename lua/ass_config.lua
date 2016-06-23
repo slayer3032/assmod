@@ -2,18 +2,18 @@
 function ASS_ConfigFilename()
 
 	if (CLIENT) then
-		return "assmod/ass_config_client.txt"
+		return "assmod/config_client.txt"
 	elseif (SERVER) then
-		return "assmod/ass_config_server.txt"
+		return "assmod/config_server.txt"
 	else
-		return "assmod/ass_config_unknown.txt"
+		return "assmod/config_unknown.txt"
 	end
 
 end
 
 function ASS_WriteConfig()
 
-	local cfgfile = util.TableToKeyValues( ASS_Config )
+	local cfgfile = von.serialize( ASS_Config )
 	
 	file.Write( ASS_ConfigFilename(), cfgfile )
 
@@ -41,7 +41,7 @@ function ASS_ReadConfig()
 		
 		if (cfgfile and #cfgfile > 0) then
 
-			local cfg = util.KeyValuesToTable( cfgfile )
+			local cfg = von.deserialize( cfgfile )
 			
 			if (cfg) then
 				ASS_Config = cfg

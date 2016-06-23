@@ -99,5 +99,13 @@ Added FullNickLog back into logs
 
 -------------- 6/21/16 ----------------
 
-Working TMySQL3 and TMySQL4 writers
+Working Beta TMySQL3 and TMySQL4 writers
+Working Beta TMySQL3 and TMySQL4 banlists
 Moved logging to a configurable plugin
+Changed ASS_DropClient to use game.KickID
+Moved banning/unbanning backend to banlist plugins
+Split Alltalk and Gag/Mute plugins
+Updated Alltalk/Proxvoice to not use SetGlobals as bad as DarkRP
+Converted config files to use von, assmod configs are getting remade
+Moved some stuff out of the default config and split it client/server
+Removed a couple useless networkvars

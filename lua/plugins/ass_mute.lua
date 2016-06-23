@@ -2,7 +2,7 @@
 local PLUGIN = {}
 
 PLUGIN.Name = "Mute/Gag"
-PLUGIN.Author = "Sadistic Slayer"
+PLUGIN.Author = "Slayer3032"
 PLUGIN.Date = "25th September 2012"
 PLUGIN.Filename = PLUGIN_FILENAME
 PLUGIN.ClientSide = true
@@ -11,7 +11,6 @@ PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
 
 if (SERVER) then
-	
 	ASS_NewLogLevel("ASS_ACL_MUTE")
 	ASS_NewLogLevel("ASS_ACL_GAG")
 	
@@ -105,64 +104,10 @@ if (SERVER) then
 	hook.Add("PlayerCanHearPlayersVoice", "PlayerCanHearPlayersVoice_" .. PLUGIN.Filename, function(listener, talker)
 		if !IsValid(talker) then return end
 		if talker.VoiceMuted then return false end
-		if tobool(ASS_Config["proximity_talk"]) then
-			return true, true
-		elseif tobool(ASS_Config["alltalk"]) then
-			return true
-		end
 	end)
-	
-		hook.Add("InitPostEntity", "InitPostEntity_" .. PLUGIN.Filename, function()
-		SetGlobalInt( "ASS_Alltalk", ASS_Config["alltalk"] or 0 )
-		SetGlobalInt( "ASS_Proxtalk", ASS_Config["proximity_talk"] or 0 )
-	end)
-	
-	concommand.Add("ASS_SetAlltalk",function(PLAYER, CMD, ARGS)
-		if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-			if (tonumber(ARGS[1]) == 0) then
-				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "turned alltalk voice off")
-				ASS_Config["alltalk"] = 0
-				ASS_WriteConfig()
-				SetGlobalString( "ASS_Alltalk", tonumber(ARGS[1]) )
-			elseif (tonumber(ARGS[1]) == 1) then 
-				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "turned alltalk voice on")
-				ASS_Config["alltalk"] = 1
-				ASS_WriteConfig()
-				SetGlobalString( "ASS_Alltalk", tonumber(ARGS[1]) )
-			end
-		else
-			ASS_MessagePlayer( PLAYER, "Access denied!")
-		end
-	
-	end
-	)
-	
-	concommand.Add("ASS_SetProxtalk",function(PLAYER, CMD, ARGS)
-		if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
-			if (tonumber(ARGS[1]) == 0) then
-				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "turned proximity voice off")
-				ASS_Config["proximity_talk"] = 0
-				ASS_WriteConfig()
-				SetGlobalString( "ASS_Proxtalk", tonumber(ARGS[1]) )
-			elseif (tonumber(ARGS[1]) == 1) then 
-				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "turned proximity voice on")
-				ASS_Config["proximity_talk"] = 1
-				ASS_WriteConfig()
-				SetGlobalString( "ASS_Proxtalk", tonumber(ARGS[1]) )
-			end
-		else
-			ASS_MessagePlayer( PLAYER, "Access denied!")
-		end
-	
-	end
-	)
 end
 
 if (CLIENT) then
-
-	--I'm just gonna lazy it up and just make some varible which doesn't go along with the assmod scheme..
-	ASS_MutePluginInstalled = true
-
 	function PLUGIN.Mute(PLAYER)
 		if (!PLAYER:IsValid()) then return end
 		
@@ -196,30 +141,6 @@ if (CLIENT) then
 				NEWMENU:AddSubMenu( "Ungag", nil, function(NEWMENU2) ASS_PlayerMenu( NEWMENU2, {"IncludeAll", "IncludeLocalPlayer"}, PLUGIN.UnGag ) end ):SetImage( "icon16/sound.png" )
 			end
 		):SetImage( "icon16/transmit_blue.png" )
-	end
-
-	function PLUGIN.AddSetting(SUBMENU)
-		SUBMENU:AddSubMenu("Alltalk", nil, function(MENU)
-			local Items = {}
-			Items[1] = MENU:AddOption("Yes", function() RunConsoleCommand("ASS_SetAlltalk", "1") end )
-			Items[0] = MENU:AddOption("No",	function() RunConsoleCommand("ASS_SetAlltalk", "0") end )
-		
-			local Mode = GetGlobalInt("ASS_Alltalk")
-			if (Items[Mode]) then
-				Items[Mode]:SetImage("icon16/tick.png")
-			end
-		end):SetImage("icon16/group_link.png")
-		
-		SUBMENU:AddSubMenu("Proximity Voice", nil, function(MENU)
-			local Items = {}
-			Items[1] = MENU:AddOption("Yes", function() RunConsoleCommand("ASS_SetProxtalk", "1") end )
-			Items[0] = MENU:AddOption("No",	function() RunConsoleCommand("ASS_SetProxtalk", "0") end )
-		
-			local Mode = GetGlobalInt("ASS_Proxtalk")
-			if (Items[Mode]) then
-				Items[Mode]:SetImage("icon16/tick.png")
-			end
-		end):SetImage("icon16/transmit.png")
 	end
 end
 

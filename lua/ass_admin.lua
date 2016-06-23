@@ -1,8 +1,9 @@
 local PlayerBans = {}
 
-function ASS_GetBanTable() return PlayerBans end
-function ASS_LoadBanlist(id) ASS_RunPluginFunction("LoadBanlist", nil, id) end
-function ASS_SaveBanlist(id) ASS_RunPluginFunction("SaveBanlist", nil, id) end
+function ASS_GetBanTable()
+	if !PlayerBans then PlayerBans = {} end
+	return PlayerBans
+end
 
 function ASS_SetLevel( PLAYER, UNIQUEID, NEWRANK, TIME )
 	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -56,15 +57,14 @@ end
 
 function ASS_UnBanPlayer( PLAYER, ID )
 	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
-		if ASS_RunPluginFunction("AllowPlayerUnBan", true, PLAYER, ID) then
+		if !PlayerBans[ID] then return ASS_MessagePlayer( PLAYER, "ID not found!") end
+		if ASS_RunPluginFunction("AllowPlayerUnban", true, PLAYER, ID) then
 			ASS_LogAction(PLAYER, ASS_ACL_BAN_KICK, "unbanned \""..PlayerBans[ID].Name.."\" ("..util.SteamIDFrom64(ID)..") from admin \""..PlayerBans[ID].AdminName.."\"")	
-			PlayerBans[ID] = nil
-			ASS_SaveBanlist(ID)
-			ASS_RunPluginFunction("PlayerUnbanned", nil, PLAYER, ID)			
-		end	
-	else	
+			ASS_RunPluginFunction("PlayerUnban", nil, ID, PLAYER)
+		end
+	else
 		ASS_MessagePlayer( PLAYER, "Access denied!")
-	end	
+	end
 end
 
 function ASS_BanPlayer( PLAYER, UNIQUEID, TIME, REASON )
@@ -99,17 +99,9 @@ function ASS_BanPlayer( PLAYER, UNIQUEID, TIME, REASON )
 				ASS_LogAction( PLAYER, ASS_ACL_BAN_KICK, "banned " .. ASS_FullNick(TO_BAN) .. " permanently" )
 			end
 
-			ASS_RunPluginFunction( "PlayerBanned", nil, PLAYER, TO_BAN, TIME, REASON )
-		
-			PlayerBans[TO_BAN:AssID()] = {}
-			PlayerBans[TO_BAN:AssID()].Name = TO_BAN:Nick()
-			PlayerBans[TO_BAN:AssID()].AdminName = PLAYER:Nick()
-			PlayerBans[TO_BAN:AssID()].AdminID = PLAYER:SteamID64()
-			PlayerBans[TO_BAN:AssID()].UnbanTime = os.time()+(TIME*60) --no more source magic minute, writeid bullshit
-			PlayerBans[TO_BAN:AssID()].Reason = REASON
-			ASS_SaveBanlist(TO_BAN:AssID())
+			ASS_RunPluginFunction( "PlayerBan", nil, PLAYER, TO_BAN, TIME, REASON )
 
-			ASS_DropClient(TO_BAN:UserID(), PLAYER:Nick().. " has banned you for "..TIME.." minutes.".. " Reason: ("..REASON..")\n")
+			ASS_DropClient(TO_BAN:UserID(), PLAYER:Nick().. " has banned you for "..TIME.." minutes.".. " Reason: ("..REASON..")")
 		end
 		
 	else	
@@ -213,7 +205,7 @@ local function clienttell(len, pl)
 			local tell = net.ReadBool()
 			local text = (tell and "") or "not "
 			ASS_LogAction( pl, ASS_ACL_SETTING, "set clients to "..text.."be notified of admin actions")
-			ASS_Config["tell_clients_what_happened"] = tell and 1 or 0
+			ASS_Config["tell_clients_what_happened"] = tell
 			ASS_WriteConfig()
 			net.Start('ass_clienttell')
 				net.WriteBool(tell)

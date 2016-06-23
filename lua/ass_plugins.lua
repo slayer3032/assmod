@@ -167,7 +167,8 @@ function ASS_LoadPlugins( DIR )
 
 end
 
-concommand.Add("ASS_SetBanlistPlugin",
+if SERVER then
+	concommand.Add("ASS_SetBanlistPlugin",
 	function(PL,CMD,ARGS)
 		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			local Name = ARGS[1] or "Default Banlist"
@@ -177,7 +178,7 @@ concommand.Add("ASS_SetBanlistPlugin",
 				ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
 				return
 			end
-			if (!Plugin.LoadBanlist || !Plugin.SaveBanlist || !Plugin.CheckPassword) then
+			if (!Plugin.PlayerBan || !Plugin.CheckPassword) then
 				ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a banlist plugin!");
 				return
 			end
@@ -188,26 +189,14 @@ concommand.Add("ASS_SetBanlistPlugin",
 			end
 
 			ASS_Config["banlist"] = Name
-			ASS_SaveBanlist()
 			ASS_MessagePlayer(PL, "Banlist changed to " .. Name);
 			ASS_WriteConfig()
 			game.ConsoleCommand( "changelevel " .. game.GetMap() .. "\n" )
 		else
 			ASS_MessagePlayer(PL, "Access denied!");
 		end
-	end,
-	function(CMD,ARGS)
-		local f = ASS_AllPlugins(
-				function(plugin) return plugin.SaveBanlist && plugin.LoadBanlist && plugin.CheckBanlist && plugin.RefreshBanlist && plugin.CheckPassword end
-			)
-		local res = {}
-		for k,v in pairs(f) do
-			table.insert(res, "ASS_SetBanlistPlugin \"" .. v.Name .. "\"")
-		end
-		table.insert(res, "dummy")
-		return res
 	end)
-concommand.Add("ASS_SetWriterPlugin",
+	concommand.Add("ASS_SetWriterPlugin",
 	function(PL,CMD,ARGS)
 		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			local Name = ARGS[1] or "Default Writer"
@@ -217,7 +206,7 @@ concommand.Add("ASS_SetWriterPlugin",
 				ASS_MessagePlayer(PL, "Plugin " .. Name .. " not found!");
 				return
 			end
-			if (!Plugin.AddToLog || !Plugin.LoadPlayerRank || !Plugin.SavePlayerRank) then
+			if (!Plugin.LoadPlayerRank || !Plugin.SavePlayerRank) then
 				ASS_MessagePlayer(PL, "Plugin " .. Name .. " isn't a writer plugin!");
 				return
 			end
@@ -234,19 +223,8 @@ concommand.Add("ASS_SetWriterPlugin",
 		else
 			ASS_MessagePlayer(PL, "Access denied!");
 		end
-	end,
-	function(CMD,ARGS)
-		local f = ASS_AllPlugins(
-				function(plugin) return plugin.AddToLog or plugin.LoadPlayerRank or plugin.SavePlayerRank end
-			)
-		local res = {}
-		for k,v in pairs(f) do
-			table.insert(res, "ASS_SetWriterPlugin \"" .. v.Name .. "\"")
-		end
-		table.insert(res, "dummy")
-		return res
 	end)
-concommand.Add("ASS_SetLoggerPlugin",
+	concommand.Add("ASS_SetLoggerPlugin",
 	function(PL,CMD,ARGS)
 		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			local Name = ARGS[1] or "Default Logger"
@@ -273,15 +251,6 @@ concommand.Add("ASS_SetLoggerPlugin",
 		else
 			ASS_MessagePlayer(PL, "Access denied!");
 		end
-	end,
-	function(CMD,ARGS)
-		local f = ASS_AllPlugins(
-				function(plugin) return plugin.AddToLog end
-			)
-		local res = {}
-		for k,v in pairs(f) do
-			table.insert(res, "ASS_SetWriterPlugin \"" .. v.Name .. "\"")
-		end
-		table.insert(res, "dummy")
-		return res
 	end)
+end
+	

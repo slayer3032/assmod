@@ -37,6 +37,16 @@ function ASS_FormatText( TEXT )
 	return TEXT
 end
 
+function PLUGIN.Registered()
+	if !ASS_Config["fixed_notices"] then
+		ASS_Config["fixed_notices"] = {
+			{	duration = 10,		text = "Welcome to %hostname%. Please play nice!"			},
+			{	duration = 10,		text = "Running %gamemode% on %map%"					},
+			{	duration = 10,		text = "%assmod% - If you're an admin, bind a key to +ass_menu"		},
+		}
+	end
+end
+
 if (SERVER) then
 	ASS_NewLogLevel("ASS_ACL_NOTICE")
 
