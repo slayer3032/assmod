@@ -52,8 +52,8 @@ You can find the data files in garrysmod\data\assmod
 This is all assuming that you're using the "Default Writer" plugins, you can also switch over to TMySQL3, TMySQL4 or MySQLOO if you wish so with the following commands. Just place the name of the plugin you'd like to use in place of my examples.
 
 >ass_setwriterplugin "TMySQL4 Writer"
-ass_setbanlistplugin "TMySQL4 Banlist"
-ass_setloggerplugin "TMySQL4 Logger"
+>ass_setbanlistplugin "TMySQL4 Banlist"
+>ass_setloggerplugin "TMySQL4 Logger"
 
 ###Thanks
 * AndyVincent for being the original developer and creator of ASSmod
