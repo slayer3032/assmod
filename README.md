@@ -13,13 +13,15 @@
 ###Access Levels
 In order of priority, you can edit these in ass_shared.lua
 
-0. Owner
-1. Super Admin
-2. Admin
-3. Temp Admin
-4. Respected
-5. Guest
-255. Banned
+```
+0 = Owner
+1 = Super Admin
+2 = Admin
+3 = Temp Admin
+4 = Respected
+5 = Guest
+255 = Banned
+```
 
 ###Usage
 Simple, bind a key to "+ass_menu". I generally use t since it's easy access and isn't really used for anything else.
@@ -58,18 +60,6 @@ ass_setwriterplugin "TMySQL4 Writer"
 ass_setbanlistplugin "TMySQL4 Banlist"
 ass_setloggerplugin "TMySQL4 Logger"
 ```
-
-###Thanks
-* AndyVincent for being the original developer and creator of ASSmod
-* Garry for Garry's Mod and Derma (without Derma this mod would've never been made)
-* Anmizu for the name
-* GiGabyte for helping test
-* Ortzinator for helping test
-* Mark James for the Silk icon set
-* Anyone who commented on the WIP thread
-* Anyone who joined my server and let me experiment on them ;)
-* Anyone who said "cool" when I showed them a screenshot
-* Thanks to Dark_Moo for helping to test the lag problems in 2.0-2.01
 
 ###Contact
 - Steam: http://steamcommunity.com/id/SadisticSlayer
