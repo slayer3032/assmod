@@ -27,7 +27,10 @@ function PLUGIN.Registered()
 
 	if !ASS_TMySQL3_DB then 
 		d,e = tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
-		ASS_TMySQL3_DB = d
+		if d == nil and e == nil then
+			d = "D is for Database!"
+			ASS_TMySQL3_DB = d
+		end
 		print("ASS Writer -> TMySQL3 connection initalized!")
 	else
 		d = ASS_TMySQL3_DB
@@ -45,7 +48,7 @@ function PLUGIN.Registered()
 			end
 		end,QUERY_FLAG_ASSOC)
 	else
-		ErrorNoHalt("ASS Writer -> Error connecting to database: "..e or "error")
+		ErrorNoHalt("ASS Writer -> Error connecting to database: "..(e or "error"))
 		chat.AddText(Color(0, 229, 238), "ASS Writer -> Error connecting to database!")
 	end
 end
@@ -77,7 +80,7 @@ end
 function PLUGIN.SavePlayerRank(pl)
 	if ASS_Config["writer"] != PLUGIN.Name then return end
 	if d then
-		tmysql.query("INSERT INTO ass_users (id,plugin_data,rank) VALUES("..pl:SteamID64()..",'"..von.serialize(pl.ASSPluginValues).."',"..pl:GetAssLevel()..") ON DUPLICATE KEY UPDATE plugin_data='"..von.serialize(pl.ASSPluginValues).."',rank="..pl:GetAssLevel())
+		tmysql.query("INSERT INTO ass_users (id,plugin_data,rank) VALUES("..pl:SteamID64()..",'"..tmysql.escape(von.serialize(pl.ASSPluginValues)).."',"..pl:GetAssLevel()..") ON DUPLICATE KEY UPDATE plugin_data='"..von.serialize(pl.ASSPluginValues).."',rank="..pl:GetAssLevel())
 	else
 		ErrorNoHalt("ASS Writer -> Cannot save player rank! MySQL could not connect to database!")
 		chat.AddText(Color(0, 229, 238), "ASS Writer -> Cannot save player rank! MySQL could not connect to database!")

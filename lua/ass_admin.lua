@@ -94,9 +94,9 @@ function ASS_BanPlayer( PLAYER, UNIQUEID, TIME, REASON )
 		if (ASS_RunPluginFunction( "AllowPlayerBan", true, PLAYER, TO_KICK, TIME, REASON )) then		
 
 			if (TIME > 0) then		
-				ASS_LogAction( PLAYER, ASS_ACL_BAN_KICK, "banned " .. ASS_FullNick(TO_BAN) .. " for " .. TIME .. " minutes" )
+				ASS_LogAction( PLAYER, ASS_ACL_BAN_KICK, "banned " .. ASS_FullNick(TO_BAN) .. " for " .. TIME .. " minutes with reason \"" .. REASON .. "\"" )
 			else
-				ASS_LogAction( PLAYER, ASS_ACL_BAN_KICK, "banned " .. ASS_FullNick(TO_BAN) .. " permanently" )
+				ASS_LogAction( PLAYER, ASS_ACL_BAN_KICK, "banned " .. ASS_FullNick(TO_BAN) .. " permanently with reason \"" .. REASON .. "\"" )
 			end
 
 			ASS_RunPluginFunction( "PlayerBan", nil, PLAYER, TO_BAN, TIME, REASON )

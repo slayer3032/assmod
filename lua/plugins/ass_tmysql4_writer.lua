@@ -78,7 +78,7 @@ function PLUGIN.SavePlayerRank(pl)
 	if ASS_Config["writer"] != PLUGIN.Name then return end
 	if d then
 		if !d:IsConnected() then d:Connect() end
-		d:Query("INSERT INTO ass_users (id,plugin_data,rank) VALUES("..pl:SteamID64()..",'"..von.serialize(pl.ASSPluginValues).."',"..pl:GetAssLevel()..") ON DUPLICATE KEY UPDATE plugin_data='"..von.serialize(pl.ASSPluginValues).."',rank="..pl:GetAssLevel())
+		d:Query("INSERT INTO ass_users (id,plugin_data,rank) VALUES("..pl:SteamID64()..",'"..d:Escape(von.serialize(pl.ASSPluginValues)).."',"..pl:GetAssLevel()..") ON DUPLICATE KEY UPDATE plugin_data='"..von.serialize(pl.ASSPluginValues).."',rank="..pl:GetAssLevel())
 	else
 		ErrorNoHalt("ASS Writer -> Cannot save player rank! MySQL could not connect to database!")
 		chat.AddText(Color(0, 229, 238), "ASS Writer -> Cannot save player rank! MySQL could not connect to database!")

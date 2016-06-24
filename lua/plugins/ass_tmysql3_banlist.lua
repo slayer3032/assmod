@@ -41,8 +41,11 @@ function PLUGIN.Registered()
 
 	if !ASS_TMySQL3_DB then 
 		d,e = tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
-		ASS_TMySQL3_DB = d
-		print("ASS Banlist -> TMySQL3 connection initalized!")
+		if d == nil and e == nil then
+			d = "D is for Database!"
+			ASS_TMySQL3_DB = d
+		end
+		print("ASS Writer -> TMySQL3 connection initalized!")
 	else
 		d = ASS_TMySQL3_DB
 	end
@@ -108,14 +111,14 @@ function PLUGIN.PlayerBan(admin, pl, time, reason)
 
 	local bt = ASS_GetBanTable()
 	bt[pl:SteamID64()] = {}
-	bt[pl:SteamID64()].Name = admin:Nick()
-	bt[pl:SteamID64()].AdminName = pl:Nick()
-	bt[pl:SteamID64()].AdminID = pl:SteamID64()
+	bt[pl:SteamID64()].Name = pl:Nick()
+	bt[pl:SteamID64()].AdminName = admin:Nick()
+	bt[pl:SteamID64()].AdminID = admin:SteamID64()
 	bt[pl:SteamID64()].UnbanTime = os.time()+(tonumber(time)*60) --no more source magic minute, writeid bullshit
 	bt[pl:SteamID64()].Reason = reason
 
 	if d then
-		tmysql.query("INSERT INTO ass_bans (id,name,unbantime,reason,adminname,adminid) VALUES("..pl:SteamID64()..",'"..pl:Nick().."',"..time..",'"..reason.."','"..admin:Nick().."',"..admin:SteamID64()..") ON DUPLICATE KEY UPDATE name='"..pl:Nick().."',unbantime="..time..",reason='"..reason.."',adminname='"..admin:Nick().."',adminid="..admin:SteamID64())
+		tmysql.query("INSERT INTO ass_bans (id,name,unbantime,reason,adminname,adminid) VALUES("..pl:SteamID64()..",'"..tmysql.escape(pl:Nick()).."',"..os.time()+(tonumber(time)*60)..",'"..tmysql.escape(reason).."','"..tmysql.escape(admin:Nick()).."',"..admin:SteamID64()..") ON DUPLICATE KEY UPDATE name='"..tmysql.escape(pl:Nick()).."',unbantime="..os.time()+(tonumber(time)*60)..",reason='"..tmysql.escape(reason).."',adminname='"..tmysql.escape(admin:Nick()).."',adminid="..admin:SteamID64())
 	else
 		ErrorNoHalt("ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
 		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
@@ -131,7 +134,7 @@ function PLUGIN.PlayerUnban(id, admin)
 	end
 
 	if d then
-		tmysql.query("DELETE FROM ass_bans WHERE id="..id, function(res,status,err) 
+		tmysql.query("DELETE FROM ass_bans WHERE id="..tmysql.escape(id), function(res,status,err) 
 			if !err then
 				if IsValid(admin) then ASS_MessagePlayer(admin, "ASS Banlist -> Unable to remove ban. MySQL Error!") end
 				error("ASS Banlist -> Unable to remove ban: "..err)
@@ -147,7 +150,7 @@ function PLUGIN.QueryBanlist(id)
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 
 	if d then
-		tmysql.query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans WHERE id='"..id.."'",function(res,status,err)
+		tmysql.query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans WHERE id='"..tmysql.escape(id).."'",function(res,status,err)
 			if !res then ErrorNoHalt("ASS Banlist -> Unable to retrieve query results!") end
 			if status == QUERY_FAIL then ErrorNoHalt("ASS Banlist -> Error checking for ban table: "..err) end
 

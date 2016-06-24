@@ -1,5 +1,11 @@
 -------------- 6/21/16 ----------------
 
+Ban messages and logging log the reason user was banned for
+MySQL escaping, these plugins should be safe to use now
+TMySQL3 doesn't fail if already initalized, "D is for Database!"
+
+-------------- 6/21/16 ----------------
+
 Working Beta TMySQL3 and TMySQL4 writers
 Working Beta TMySQL3 and TMySQL4 banlists
 Moved logging to a configurable plugin

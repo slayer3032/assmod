@@ -103,15 +103,15 @@ function PLUGIN.PlayerBan(admin, pl, time, reason)
 
 	local bt = ASS_GetBanTable()
 	bt[pl:SteamID64()] = {}
-	bt[pl:SteamID64()].Name = admin:Nick()
-	bt[pl:SteamID64()].AdminName = pl:Nick()
-	bt[pl:SteamID64()].AdminID = pl:SteamID64()
+	bt[pl:SteamID64()].Name = pl:Nick()
+	bt[pl:SteamID64()].AdminName = admin:Nick()
+	bt[pl:SteamID64()].AdminID = admin:SteamID64()
 	bt[pl:SteamID64()].UnbanTime = os.time()+(tonumber(time)*60) --no more source magic minute, writeid bullshit
 	bt[pl:SteamID64()].Reason = reason
 
 	if d then
 		if !d:IsConnected() then d:Connect() end
-		d:Query("INSERT INTO ass_bans (id,name,unbantime,reason,adminname,adminid) VALUES("..pl:SteamID64()..",'"..pl:Nick().."',"..time..",'"..reason.."','"..admin:Nick().."',"..admin:SteamID64()..") ON DUPLICATE KEY UPDATE name='"..pl:Nick().."',unbantime="..time..",reason='"..reason.."',adminname='"..admin:Nick().."',adminid="..admin:SteamID64())
+		d:Query("INSERT INTO ass_bans (id,name,unbantime,reason,adminname,adminid) VALUES("..pl:SteamID64()..",'"..d:Escape(pl:Nick()).."',"..os.time()+(tonumber(time)*60)..",'"..d:Escape(reason).."','"..d:Escape(admin:Nick()).."',"..admin:SteamID64()..") ON DUPLICATE KEY UPDATE name='"..d:Escape(pl:Nick()).."',unbantime="..os.time()+(tonumber(time)*60)..",reason='"..d:Escape(reason).."',adminname='"..d:Escape(admin:Nick()).."',adminid="..admin:SteamID64())
 	else
 		ErrorNoHalt("ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
 		chat.AddText(Color(0, 229, 238), "ASS Banlist -> Cannot ban player! MySQL could not connect to database!")
@@ -127,7 +127,7 @@ function PLUGIN.PlayerUnban(id, admin)
 	end
 
 	if d then
-		d:Query("DELETE FROM ass_bans WHERE id="..id, function(res) 
+		d:Query("DELETE FROM ass_bans WHERE id="..d:Escape(id), function(res) 
 			if !res[1].error then
 				if IsValid(admin) then ASS_MessagePlayer(admin, "ASS Banlist -> Unable to remove ban. MySQL Error!") end
 				error("ASS Banlist -> Unable to remove ban: "..res[1].error)
@@ -143,7 +143,7 @@ function PLUGIN.QueryBanlist(id)
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 
 	if d then
-		d:Query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans WHERE id='"..id.."'",function(res)
+		d:Query("SELECT id,name,unbantime,reason,adminname,adminid FROM ass_bans WHERE id='"..d:Escape(id).."'",function(res)
 			if !res[1] then ErrorNoHalt("ASS Banlist -> Unable to retrieve query results!") end
 			if !res[1].status then ErrorNoHalt("ASS Banlist -> Error checking for ban table: "..res[1].error) end
 

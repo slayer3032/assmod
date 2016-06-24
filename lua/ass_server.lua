@@ -241,12 +241,12 @@ end
 
 function ASS_FullNick( PLAYER )	
 	if type(PLAYER) == "string" then return PLAYER end
-	return "\'" .. PLAYER:Nick() .. "\' (" .. PLAYER:SteamID() .. " | " .. ASS_LevelToString(PLAYER:GetAssLevel()) .. ")"
+	return "\"" .. PLAYER:Nick() .. "\" (" .. PLAYER:SteamID() .. " | " .. ASS_LevelToString(PLAYER:GetAssLevel()) .. ")"
 end
 
 function ASS_FullNickLog( PLAYER )
 	if type(PLAYER) == "string" then return PLAYER end
-	return "\'" .. PLAYER:Nick() .. "\' (" .. PLAYER:SteamID() .. " | "..PLAYER:SteamID64().."] | " .. PLAYER:IPAddress() .. ")"
+	return "\'" .. PLAYER:Nick() .. "\' (" .. PLAYER:SteamID() .. " | "..PLAYER:SteamID64().." | " .. PLAYER:IPAddress() .. ")"
 end
 
 function ASS_MessagePlayer( PLAYER, MESSAGE )
