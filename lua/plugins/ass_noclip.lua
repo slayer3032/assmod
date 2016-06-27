@@ -38,6 +38,10 @@ if (SERVER) then
 	end
 	hook.Add("PlayerSpawn", "PlayerSpawn_" .. PLUGIN_FILENAME, PLUGIN.PlayerSpawn)
 
+	function PLUGIN.RankingChanged( PLAYER, RANK )
+		PLAYER:SetNetworkedInt("ASS_noclip", PLUGIN.AllowNoclip(PLAYER) )
+	end
+
 	function PLUGIN.AllowNoclip(PLAYER)
 
 		local Allow = PLAYER:GetAssAttribute("noclip", "number", -1)

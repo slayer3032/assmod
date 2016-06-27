@@ -1,4 +1,11 @@
--------------- 6/21/16 ----------------
+-------------- 6/26/16 ----------------
+
+Noclip plugin now updates client NWVar with default noclip permissions when rank changes
+Removed unneeded silkicons
+Fixed team plugin using a nil function
+Removed unused KillSilent plugin
+
+-------------- 6/23/16 ----------------
 
 Ban messages and logging log the reason user was banned for
 MySQL escaping, these plugins should be safe to use now

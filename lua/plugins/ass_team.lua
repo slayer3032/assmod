@@ -18,7 +18,7 @@ if (SERVER) then
 	
 	function PLUGIN.SetTeam( PLAYER, CMD, ARGS )
 		
-		if !Teams or team.Count(Teams) < 0 then
+		if !Teams or table.Count(Teams) < 0 then
 			Teams = team.GetAllTeams()
 		end
 
@@ -78,7 +78,7 @@ if (CLIENT) then
 
 	function PLUGIN.AddMenu(DMENU)			
 	
-		DMENU:AddSubMenu( "Set Team", nil, function(NEWMENU) ASS_PlayerMenu(NEWMENU, {"IncludeAll", "HasSubMenu","IncludeLocalPlayer"}, PLUGIN.TeamChoice ) end ):SetImage( "icon16/group_edit.png" )
+		DMENU:AddSubMenu( "Team", nil, function(NEWMENU) ASS_PlayerMenu(NEWMENU, {"IncludeAll", "HasSubMenu","IncludeLocalPlayer"}, PLUGIN.TeamChoice ) end ):SetImage( "icon16/group_edit.png" )
 
 	end
 

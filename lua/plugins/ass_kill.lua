@@ -12,7 +12,6 @@ PLUGIN.Gamemodes = {}
 
 if (SERVER) then
 	ASS_NewLogLevel("ASS_ACL_KILL")
-	--ASS_NewLogLevel("ASS_ACL_KILL_SILENT")
 
 	function PLUGIN.KillPlayer( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -63,32 +62,6 @@ if (SERVER) then
 		end
 	end
 	concommand.Add("ASS_RespawnPlayer", PLUGIN.RespawnPlayer)
-	
-	-- This is probably a bad idea but if you want to uncomment it, go for it!
-	--[[function PLUGIN.KillSilentPlayer( PLAYER, CMD, ARGS )
-		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
-			local TO_KILL = ASS_FindPlayer(ARGS[1])
-			if (!TO_KILL) then
-				ASS_MessagePlayer(PLAYER, "Player not found!")
-				return
-			end
-
-			if (TO_KILL != PLAYER) then
-				if (TO_KILL:IsBetterOrSame(PLAYER)) then
-					ASS_MessagePlayer(PLAYER, "Access denied! \"" .. TO_KILL:Nick() .. "\" has same or better access then you.")
-					return
-				end
-			end
-
-			if (ASS_RunPluginFunction( "AllowPlayerKillSilent", true, PLAYER, TO_KILL )) then
-				TO_KILL:KillSilent()
-				ASS_LogAction( PLAYER, ASS_ACL_KILL_SILENT, "killed " .. ASS_FullNick(TO_KILL) .. " silently" )	
-			end
-		else
-			ASS_MessagePlayer( PLAYER, "Access denied!")
-		end
-	end
-	concommand.Add("ASS_KillSilentPlayer", PLUGIN.KillSilentPlayer)]]
 	
 	function PLUGIN.RocketPlayer( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -204,7 +177,6 @@ if (CLIENT) then
 	
 	function PLUGIN.BuildMenu(NEWMENU)
 		NEWMENU:AddSubMenu( "Kill" , nil, function(NEWMENU2) ASS_PlayerMenu( NEWMENU2, {"IncludeLocalPlayer", "IncludeAll"}, PLUGIN.KillPlayer ) end):SetImage( "icon16/user_delete.png" )
-		--NEWMENU:AddSubMenu( "Kill Silent" , nil, function(NEWMENU2) ASS_PlayerMenu( NEWMENU2, {"IncludeLocalPlayer", "IncludeAll"}, PLUGIN.KillSilentPlayer ) end):SetImage( "icon16/status_offline_delete.png" )
 		NEWMENU:AddSubMenu( "Explode" , nil, function(NEWMENU2) ASS_PlayerMenu( NEWMENU2, {"IncludeLocalPlayer", "IncludeAll"}, PLUGIN.ExplodePlayer ) end):SetImage( "icon16/bomb.png" )
 		NEWMENU:AddSubMenu( "Rocket" , nil, function(NEWMENU2) ASS_PlayerMenu( NEWMENU2, {"IncludeLocalPlayer", "IncludeAll"}, PLUGIN.RocketPlayer ) end):SetImage( "icon16/sport_shuttlecock_reverse.png" )
 		NEWMENU:AddSubMenu( "Respawn" , nil, function(NEWMENU2) ASS_PlayerMenu( NEWMENU2, {"IncludeLocalPlayer", "IncludeAll"}, PLUGIN.RespawnPlayer ) end):SetImage( "icon16/user_go.png" )
