@@ -144,9 +144,14 @@ if (SERVER) then
 	end
 
 	local NextAssThink = 0
-	hook.Add('Initialize', 'ASS_NoticeInitialize', function() for k,v in pairs(ASS_Config["fixed_notices"]) do ASS_AddNamedNotice( ASS_GenerateFixedNoticeName(v.text, v.duration), v.text or "", tonumber(v.duration) or 10) end end)
-	hook.Add('InitialPlayerSpawn', 'ASS_SendNoticeInit', function(PLAYER) for k,v in pairs(ASS_GetActiveNotices()) do ASS_SendNotice(PLAYER, v.Name, v.Text, v.Duration) end end)
+	hook.Add('InitPostEntity', 'ASS_NoticeInitialize', function() for k,v in pairs(ASS_Config["fixed_notices"]) do ASS_AddNamedNotice( ASS_GenerateFixedNoticeName(v.text, v.duration), v.text or "", tonumber(v.duration) or 10) end end)
 	hook.Add('Think', 'ASS_NoticeThink', function() if #ASS_GetActiveNotices() > 0 then SetGlobalString( "ServerTime", os.date("%H:%M:%S") ) SetGlobalString( "ServerDate", os.date("%d/%b/%Y") ) end NextAssThink = CurTime() + 1 end)
+
+	function PLUGIN.PlayerInitialized(PLAYER)
+		for k,v in pairs(ASS_GetActiveNotices()) do
+			ASS_SendNotice(PLAYER, v.Name, v.Text, v.Duration)
+		end
+	end
 
 	function PLUGIN.AddFixedNotice( PLAYER, CMD, ARGS )
 		if (!PLAYER:IsValid()) then PLAYER = ConsolePlayer() end

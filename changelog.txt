@@ -1,3 +1,10 @@
+-------------- 7/9/16 ----------------
+
+Fixed notice plugin causing all plugins to load twice on the server(don't use initalize hooks in plugins)
+Fixed notice plugin not initalizing saved notices
+Fixed ULX compatibility issues(Good idea to have the lua var ASS_NoUserGroups = true set to true)
+Changed the InitRank functions to not call more than needed
+
 -------------- 6/26/16 ----------------
 
 Noclip plugin now updates client NWVar with default noclip permissions when rank changes

@@ -54,13 +54,12 @@ local PLAYER = FindMetaTable("Player")
 
 function PLAYER:InitLevel(tbl)
 	if !IsValid(self) then return end
+
 	if tbl then
 		self.ASSPluginValues = tbl.ASSPluginValues or {}
-		self.ASSGuest = false
 		self:SetAssLevel(tbl.Rank)
 	else
 		self.ASSPluginValues = {}
-		self.ASSGuest = true
 		self:SetAssLevel(ASS_LVL_GUEST)
 	end
 end
@@ -193,7 +192,8 @@ end
 
 function ASS_PlayerInitialSpawn( PLAYER )
 	net.Start('ass_initialize') net.Send(PLAYER)
-	PLAYER:InitLevel() --we just call this again when you get authed but until then you're a guest, this may cause issues if steam is down and assmod does things to you
+	PLAYER.ASSPluginValues = PLAYER.ASSPluginValues or {}
+	PLAYER.ASSRank = PLAYER.ASSRank or ASS_LVL_GUEST
 	
 	if PLAYER:IsListenServerHost() then	
 		PLAYER:SetAssLevel(ASS_LVL_SERVER_OWNER)
