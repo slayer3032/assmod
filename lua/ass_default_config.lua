@@ -25,7 +25,7 @@ if CLIENT then
 		{ 	time = 30,		name = "30 Min" 	},
 		{ 	time = 60,		name = "1 Hour"		},
 		{ 	time = 120,		name = "2 Hours"	},
-		{ 	time = 720,		name = "6 Hours"	},
+		{ 	time = 360,		name = "6 Hours"	},
 		{ 	time = 1440,	name = "24 Hours"	},
 		{ 	time = 2880,	name = "2 Days"		},
 		{ 	time = 7200,	name = "5 Days"		},
