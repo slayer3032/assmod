@@ -13,8 +13,9 @@
 |![1](https://www.exiledservers.net/sadistic/ranks.PNG) |![2](https://www.exiledservers.net/sadistic/sandbox.PNG) |
 ### Access Levels
 In order of priority, you can edit these in ``ass_shared.lua``. Action is allowed if the actor's level is less than the target's level. (ex: 0 < 2, Owners can act on Admins)
+
 | Level | Rank |
-| -- | -- |
+| - | ---- |
 | 0 | Owner |
 | 1 | Super Admin |
 | 2 | Admin |
