@@ -1,6 +1,6 @@
 # Assmod 2.4 (A simple server modification)
 
-- Quick administration menu, just bind a key to +ass_menu.
+- Quick administration menu, just bind a key to ``+ass_menu``.
 - Lua ban system, uses CheckPassword to drop clients with custom reasons.
 - Lots of neat plugins.
 - Silkicons everywhere!
@@ -8,30 +8,26 @@
 - MySQL ranks and global bans out of the box. Wow!
 
 ### Images
-![1](https://www.exiledservers.net/sadistic/ranks.PNG)![2](https://www.exiledservers.net/sadistic/sandbox.PNG)
-
+| Access Menu | Gamemode Plugin Menu |
+|--|--|
+|![1](https://www.exiledservers.net/sadistic/ranks.PNG) |![2](https://www.exiledservers.net/sadistic/sandbox.PNG) |
 ### Access Levels
-In order of priority, you can edit these in ass_shared.lua
-
-```
-0 = Owner
-1 = Super Admin
-2 = Admin
-3 = Temp Admin
-4 = Respected
-5 = Guest
-255 = Banned
-```
+In order of priority, you can edit these in ``ass_shared.lua``. Action is allowed if the actor's level is less than the target's level. (ex: 0 < 2, Owners can act on Admins)
+| Level | Rank |
+| -- | -- |
+| 0 | Owner |
+| 1 | Super Admin |
+| 2 | Admin |
+| 3 | Temp Admin |
+| 4 | Respected |
+| 5 | Guest (Default) |
+| 255 | Banned |
 
 ### Usage
-Simple, bind a key to "+ass_menu". I generally use t since it's easy access and isn't really used for anything else.
-
-```
-bind "t" "+ass_menu"
-```
+Simple, bind a key to ``"+ass_menu"``. For example, ``bind "t" "+ass_menu"``.
 
 ### Console Commands
-The only time you should ever need to use an Assmod console command is to assign ownership of the server a player (or players) - This is only really needed on a dedicated server, or a server where more then one 'owner' is necessary. This command is ass_giveownership (userid).
+The only time you should ever need to use an Assmod console command is to assign ownership of the server a player (or players). This is only really needed on a dedicated server, or a server where more then one 'owner' is necessary. The command is ``ass_giveownership <userid>``.
 
 ```
 ] status
@@ -46,12 +42,12 @@ players :  1 (8 max)
 Ownership Given!
 ```
 
-The userid option is taken from the first column of the status report.
+The ``<userid>`` option is taken from the first column of the status report.
 
 ### Data Files
-Assmod's default data writing plugins write text files to the data folder. It will also write log files of admin actions and other basic events to the assmod/logs data folder. These logs are automatically cleared periodically when they get larger.
+Assmod's default data writing plugins write text files to the ``data`` folder. It will also write log files of admin actions and other basic events to the ``assmod/logs`` data folder. These logs are automatically cleared periodically when they get larger.
 
-You can find the data files in garrysmod\data\assmod
+You can find the data files in ``garrysmod\data\assmod``
 
 This is all assuming that you're using the "Default Writer" plugins, you can also switch over to TMySQL3, TMySQL4 or MySQLOO if you wish so with the following commands. Just place the name of the plugin you'd like to use in place of my examples.
 
