@@ -1,4 +1,4 @@
-#Assmod 2.4 (A simple server modification)
+# Assmod 2.4 (A simple server modification)
 
 - Quick administration menu, just bind a key to +ass_menu.
 - Lua ban system, uses CheckPassword to drop clients with custom reasons.
@@ -7,10 +7,10 @@
 - Lightweight design unlike ULX.
 - MySQL ranks and global bans out of the box. Wow!
 
-###Images
-![1](http://dl.dropbox.com/u/5601782/assmod/ranks.PNG)![2](http://dl.dropbox.com/u/5601782/assmod/sandbox.PNG)
+### Images
+![1](https://www.exiledservers.net/sadistic/ranks.PNG)![2](https://www.exiledservers.net/sadistic/sandbox.PNG)
 
-###Access Levels
+### Access Levels
 In order of priority, you can edit these in ass_shared.lua
 
 ```
@@ -23,14 +23,14 @@ In order of priority, you can edit these in ass_shared.lua
 255 = Banned
 ```
 
-###Usage
+### Usage
 Simple, bind a key to "+ass_menu". I generally use t since it's easy access and isn't really used for anything else.
 
 ```
 bind "t" "+ass_menu"
 ```
 
-###Console Commands
+### Console Commands
 The only time you should ever need to use an Assmod console command is to assign ownership of the server a player (or players) - This is only really needed on a dedicated server, or a server where more then one 'owner' is necessary. This command is ass_giveownership (userid).
 
 ```
@@ -48,7 +48,7 @@ Ownership Given!
 
 The userid option is taken from the first column of the status report.
 
-###Data Files
+### Data Files
 Assmod's default data writing plugins write text files to the data folder. It will also write log files of admin actions and other basic events to the assmod/logs data folder. These logs are automatically cleared periodically when they get larger.
 
 You can find the data files in garrysmod\data\assmod
@@ -61,6 +61,6 @@ ass_setbanlistplugin "TMySQL4 Banlist"
 ass_setloggerplugin "TMySQL4 Logger"
 ```
 
-###Contact
+### Contact
 - Steam: http://steamcommunity.com/id/SadisticSlayer
-- Facepunch: https://facepunch.com/member.php?u=129746
+- Facepunch: https://forum.facepunch.com/u/lbtn/Slayer3032/
