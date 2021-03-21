@@ -10,7 +10,7 @@
 ### Images
 | Access Menu | Gamemode Plugin Menu |
 |--|--|
-|![1](https://www.exiledservers.net/sadistic/ranks.PNG) |![2](https://www.exiledservers.net/sadistic/sandbox.PNG) |
+|![1](https://i.imgur.com/UID6z3u.png) |![2](https://i.imgur.com/7ULrCSo.png) |
 ### Access Levels
 In order of priority, you can edit these in ``ass_shared.lua``. Action is allowed if the actor's level is less than the target's level. (ex: 0 < 2, Owners can act on Admins)
 
@@ -60,4 +60,3 @@ ass_setloggerplugin "TMySQL4 Logger"
 
 ### Contact
 - Steam: http://steamcommunity.com/id/SadisticSlayer
-- Facepunch: https://forum.facepunch.com/u/lbtn/Slayer3032/
