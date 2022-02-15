@@ -79,6 +79,7 @@ end
 
 if !file.IsDir("assmod", "DATA") then file.CreateDir("assmod") end
 if !file.IsDir("assmod/logs", "DATA") then file.CreateDir("assmod/logs") end
+if !file.IsDir("assmod/logs/archive", "DATA") then file.CreateDir("assmod/logs/archive") end
 if !file.IsDir("assmod/users", "DATA") then file.CreateDir("assmod/users") end
 if !file.IsDir("assmod/bans", "DATA") then file.CreateDir("assmod/bans") end
 ASS_Config = {}

@@ -13,7 +13,7 @@ function PLUGIN.AddToLog(PLAYER, ACL, ACTION)
 	if (ASS_Config["logger"] != PLUGIN.Name) then return end
 	
 	local fn = "assmod/logs/"..ACL..".txt"
-    local fno = "assmod/logs/old/"..ACL.."_"..os.date("%d-%m-%Y")..".txt"
+    local fno = "assmod/logs/archive/"..ACL.."_"..os.date("%d-%m-%Y")..".txt"
 	local log = ""
 	
 	if (file.Exists(fn, "DATA")) then
