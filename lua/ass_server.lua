@@ -23,6 +23,7 @@ ASS_NewLogLevel("ASS_ACL_SETTING")
 ASS_NewLogLevel("ASS_ACL_MESSAGE")
 
 local ChatLogFilter = { ASS_ACL_SPEECH, ASS_ACL_KILL_SILENT, ASS_ACL_JOIN_QUIT }
+local ConsoleFilter = { ASS_ACL_SPEECH = true, ASS_ACL_JOIN_QUIT = true }
 
 // When a console command is run on a dedicated server, the PLAYER argument is a
 // NULL ENTITY. We setup this meta table so that the IsAdmin etc commands still work
@@ -229,11 +230,13 @@ function ASS_PlayerSpeech( PLAYER, TEXT, TEAMSPEAK )
 end
 
 function ASS_LogAction( PLAYER, ACL, ACTION )
-	if type(PLAYER) == "string" then
-		Msg( PLAYER .. " -> " .. ACTION .. "\n")
-	else
-		Msg( PLAYER:Nick() .. " -> " .. ACTION .. "\n")
-	end
+	if !ConsoleFilter[ACL] then
+		if type(PLAYER) == "string" then
+			Msg( PLAYER .. " -> " .. ACTION .. "\n")
+		else
+			Msg( PLAYER:Nick() .. " -> " .. ACTION .. "\n")
+		end
+    end
 	
 	ASS_TellPlayers(PLAYER, ACL, ACTION)
 	ASS_RunPluginFunction("AddToLog", nil, PLAYER, ACL, ACTION)
