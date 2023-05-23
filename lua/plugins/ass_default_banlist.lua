@@ -2,12 +2,20 @@ local PLUGIN = {}
 
 PLUGIN.Name = "Default Banlist"
 PLUGIN.Author = "Andy Vincent, Slayer3032"
-PLUGIN.Date = "01st May 2015"
+PLUGIN.Date = "22nd May 2023"
 PLUGIN.Filename = PLUGIN_FILENAME
 PLUGIN.ClientSide = false
 PLUGIN.ServerSide = true
 PLUGIN.APIVersion = 2.3
 PLUGIN.Gamemodes = {}
+
+local function dropreason(name, time, reason)
+	if time == 0 then
+		return name .. " is permanently banned. \nReason: \"" .. reason .. "\""
+	elseif time > os.time() then
+		return name .. " is banned. Time left: " .. string.NiceTime(time-os.time()) .. "\nReason: \"" .. reason .. "\""
+	end
+end
 
 function PLUGIN.LoadBanlist()
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
@@ -76,22 +84,24 @@ end
 function PLUGIN.PlayerBan(admin, pl, time, reason)
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	PLUGIN.RefreshBanlist()
+    
+    local bantime = (time == 0) and 0 or (os.time()+(time*60))
 
 	local PlayerBans = ASS_GetBanTable()
 	PlayerBans[pl:AssID()] = {}
 	PlayerBans[pl:AssID()].Name = pl:Nick()
 	PlayerBans[pl:AssID()].AdminName = admin:Nick()
 	PlayerBans[pl:AssID()].AdminID = admin:SteamID64()
-	PlayerBans[pl:AssID()].UnbanTime = os.time()+(time*60) --no more source magic minute, writeid bullshit
-	PlayerBans[pl:AssID()].Reason = time
+	PlayerBans[pl:AssID()].UnbanTime = bantime --no more source magic minute, writeid bullshit
+	PlayerBans[pl:AssID()].Reason = reason or "no reason"
 
 	PLUGIN.SaveBanlist()
 end
 
-function PLUGIN.PlayerUnban(admin, id)
+function PLUGIN.PlayerUnban(id, admin)
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	local PlayerBans = ASS_GetBanTable()
-	PlayerBans[ID] = nil
+	PlayerBans[id] = nil
 	PLUGIN.SaveBanlist()
 end
 
@@ -129,10 +139,8 @@ function PLUGIN.CheckPassword(id, ip, svpass, clpass, name)
 	local btbl = PLUGIN.CheckBanlist(id)
 	
 	if btbl then
-		if btbl.UnbanTime == 0 then
-			return false, name .. " is permanently banned. \nReason: \"" .. btbl.Reason .. "\""
-		elseif btbl.UnbanTime > os.time() then
-			return false, name .. " is banned. Time left: " .. string.NiceTime(btbl.UnbanTime-os.time()) .. "\nReason: \"" .. btbl.Reason .. "\""
+		if btbl.UnbanTime > os.time() or btbl.UnbanTime == 0 then
+			return false, dropreason(name, btbl.UnbanTime, btbl.Reason)
 		end
 	end
 end
