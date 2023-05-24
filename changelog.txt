@@ -1,3 +1,19 @@
+-------------- 5/23/23 ----------------
+
+Logfiles use month-day-year for ease of file browsing.
+Kick/Ban messages no longer report the admin name if tell_clients_what_happened is disabled.
+All console commands are now lowercase.
+ass_banplayer, ass_kickplayer, ass_removeid and ass_banid* have been added as console commands for the server console.
+default_banlist now loads the banlist on a dedicated server after map change as intended.
+Unban menu has been made significantly larger and displays more information.
+Unbans will now log a reason for unban.
+Updated vON to a newer version.
+
+-------------- 2/14/22 ----------------
+
+Logfiles are copied to another folder before being cleared.
+Console message filtering.
+
 -------------- 7/9/16 ----------------
 
 Fixed notice plugin causing all plugins to load twice on the server(don't use initalize hooks in plugins)
