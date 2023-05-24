@@ -195,7 +195,7 @@ if (SERVER) then
 		end
 	
 	end
-	concommand.Add("ASS_SpamProtect", PLUGIN.SpamProtectMode)
+	concommand.Add("ass_spamprotect", PLUGIN.SpamProtectMode)
 	
 end
 

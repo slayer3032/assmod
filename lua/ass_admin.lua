@@ -55,11 +55,11 @@ function ASS_SetLevel( PLAYER, UNIQUEID, NEWRANK, TIME )
 	end
 end
 
-function ASS_UnBanPlayer( PLAYER, ID )
+function ASS_UnBanPlayer( PLAYER, ID, REASON )
 	if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
 		if !PlayerBans[ID] then return ASS_MessagePlayer( PLAYER, "ID not found!") end
 		if ASS_RunPluginFunction("AllowPlayerUnban", true, PLAYER, ID) then
-			ASS_LogAction(PLAYER, ASS_ACL_BAN_KICK, "unbanned \""..PlayerBans[ID].Name.."\" ("..util.SteamIDFrom64(ID)..") from admin \""..PlayerBans[ID].AdminName.."\"")	
+			ASS_LogAction(PLAYER, ASS_ACL_BAN_KICK, "unbanned \""..PlayerBans[ID].Name.."\" ("..util.SteamIDFrom64(ID)..") from admin \""..PlayerBans[ID].AdminName.."\" with reason \""..(REASON or "no reason").."\"")	
 			ASS_RunPluginFunction("PlayerUnban", nil, ID, PLAYER)
 		end
 	else
@@ -100,8 +100,11 @@ function ASS_BanPlayer( PLAYER, UNIQUEID, TIME, REASON )
 			end
 
 			ASS_RunPluginFunction( "PlayerBan", nil, PLAYER, TO_BAN, TIME, REASON )
-
-			ASS_DropClient(TO_BAN:UserID(), PLAYER:Nick().. " has banned you for "..TIME.." minutes.".. " Reason: ("..REASON..")")
+			if ASS_Config["tell_clients_what_happened"] then
+				ASS_DropClient(TO_BAN:UserID(), PLAYER:Nick().. " has banned you for "..TIME.." minutes.".. " Reason: ("..REASON..")")
+			else
+				ASS_DropClient(TO_BAN:UserID(), "You have been banned for "..TIME.." minutes.".. " Reason: ("..REASON..")")
+			end
 		end
 		
 	else	
@@ -130,7 +133,12 @@ function ASS_KickPlayer( PLAYER, UNIQUEID, REASON )
 		if (ASS_RunPluginFunction( "AllowPlayerKick", true, PLAYER, TO_KICK, REASON )) then
 			ASS_LogAction( PLAYER, ASS_ACL_BAN_KICK, "kicked " .. ASS_FullNick(TO_KICK) .. " with reason \"" .. REASON .. "\"" )
 			ASS_RunPluginFunction( "PlayerKicked", nil, PLAYER, TO_KICK, REASON )	
-			ASS_DropClient(TO_KICK:UserID(), PLAYER:Nick().." has kicked you. Reason: ("..REASON..")")
+
+			if ASS_Config["tell_clients_what_happened"] then
+				ASS_DropClient(TO_KICK:UserID(), PLAYER:Nick().." has kicked you. Reason: ("..REASON..")")
+			else
+				ASS_DropClient(TO_KICK:UserID(), "You have been kicked. Reason: ("..REASON..")")
+			end
 		end		
 	else	
 		ASS_MessagePlayer( PLAYER, "Access denied!")	
@@ -173,7 +181,8 @@ net.Receive('ass_banplayer', banplayer)
 local function unbanplayer(len, pl)
 	if pl and pl:IsValid() then
 		local id = net.ReadString()
-		ASS_UnBanPlayer(pl, id)
+		local reason = net.ReadString() or "no reason"
+		ASS_UnBanPlayer(pl, id, reason)
 	end
 end
 net.Receive('ass_unbanplayer', unbanplayer)
@@ -215,7 +224,7 @@ local function clienttell(len, pl)
 end
 net.Receive('ass_clienttell', clienttell)
 
-concommand.Add( "ASS_GiveOwnership",	
+concommand.Add("ass_giveownership",	
 	function (pl, cmd, args) 	
 		if (pl:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 		
@@ -239,6 +248,100 @@ concommand.Add( "ASS_GiveOwnership",
 		end
 	end	
 )
+
+concommand.Add("ass_banplayer", function(pl,cmd,args)
+	if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
+		local id = args[1]
+		local time = args[2]
+		table.remove(args, 2)
+		table.remove(args, 1)
+		ASS_BanPlayer(pl, id, time, table.concat(args, " "))
+	else
+		ASS_MessagePlayer(pl, "Access denied!")
+	end
+end)
+
+concommand.Add("ass_kickplayer", function(pl,cmd,args)
+	if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
+		local id = args[1]
+		table.remove(args, 1)
+		ASS_KickPlayer(pl, id, table.concat(args, " "))
+	else
+		ASS_MessagePlayer(pl, "Access denied!")
+	end
+end)
+
+concommand.Add("ass_banid", function(pl,cmd,args)
+	if (ASS_Config["banlist"] != "Default Banlist") then ASS_MessagePlayer(pl, "This command is not supported by mysql banlists!") return end
+	
+	if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
+		if !args[1] then
+			ASS_MessagePlayer(pl,"Assmod BanID Help: ass_banid <steamid64> \"<name>\" <time in minutes or 0> \"<reason>\"")
+		else
+			if IsValid(ASS_FindPlayer(args[1])) then ASS_MessagePlayer(pl, "Player found in server, use ass_banplayer!") return end
+
+			local id = tostring(args[1])
+			local name = tostring(args[2])
+			local time = args[3]
+			table.remove(args, 3)
+			table.remove(args, 2)
+			table.remove(args, 1)
+
+			if !tonumber(time) then ASS_MessagePlayer(pl,"Assmod BanID Help: ass_banid <steamid64> \"<name>\" <time in minutes or 0> \"<reason>\"!!!") return end
+
+			ASS_RunPluginFunction("RefreshBanlist")
+    
+			local bantime = (tonumber(time) == 0) and 0 or (os.time()+(tonumber(time)*60))
+
+			PlayerBans[id] = {}
+			PlayerBans[id].Name = name
+			PlayerBans[id].AdminName = pl:Nick() or "Server Console"
+			PlayerBans[id].AdminID = pl:SteamID64() or "Server Console"
+			PlayerBans[id].UnbanTime = bantime
+			PlayerBans[id].Reason = table.concat(args, " ") or "no reason"
+
+			ASS_LogAction(pl, ASS_ACL_BAN_KICK, "manually banned \""..name.."\" ("..id..") for "..time.." minutes with reason \""..table.concat(args, " ").."\"")
+
+			ASS_RunPluginFunction("SaveBanlist")
+		end
+	else
+		ASS_MessagePlayer(pl, "Access denied!")
+	end
+end)
+
+concommand.Add("ass_removeid", function(pl,cmd,args)
+	if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
+		if !args[1] then
+			ASS_MessagePlayer(pl,"Assmod RemoveID Help: ass_removeid <steamid64> \"<reason>\"")
+		else
+			local id = args[1]
+			table.remove(args, 1)
+			local reason = "no reason"
+			if args[1] then reason = table.concat(args, " ") end
+			ASS_UnBanPlayer(pl, id, reason)
+		end
+	else
+		ASS_MessagePlayer(pl, "Access denied!")
+	end
+end)
+
+concommand.Add("ass_listid", function(pl,cmd,args)
+	if pl:HasAssLevel(ASS_LVL_SERVER_OWNER) then
+		if table.Count(ASS_GetBanTable()) > 0 then
+			for k,v in pairs(ASS_GetBanTable()) do
+				pl:PrintMessage(HUD_PRINTCONSOLE, v.Name.."("..k..")")
+				pl:PrintMessage(HUD_PRINTCONSOLE, "    Admin: "..v.AdminName.."("..v.AdminID..")")
+				pl:PrintMessage(HUD_PRINTCONSOLE, "    Reason: "..v.Reason)
+				pl:PrintMessage(HUD_PRINTCONSOLE, "    Length: "..((tobool(v.UnbanTime) and string.NiceTime(v.UnbanTime-os.time())) or "Permanent"))
+			end
+		else 
+			pl:PrintMessage(HUD_PRINTCONSOLE, "Assmod Banlist is empty!")
+		end
+	else
+		ASS_MessagePlayer(pl, "Access denied!")
+	end
+end)
+
 
 // override kickid2 which is defined by Gmod - this is the console command fired off when you click
 // the kick button on the scoreboard

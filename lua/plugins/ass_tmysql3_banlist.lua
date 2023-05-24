@@ -37,7 +37,7 @@ function PLUGIN.Registered()
 
 	require("tmysql")
 	hook.Add("CheckPassword", "ASS_CheckPassword", PLUGIN.CheckPassword)
-	hook.Add("PlayerInitialSpawn", "ASS_SpawnBanCheck", function(pl) PLUGIN.CheckPlayer(pl:SteamID64()) end)
+	hook.Add("PlayerInitialSpawn", "ASS_SpawnBanCheck", function(pl) PLUGIN.CheckPlayer(pl:AssID()) end)
 
 	if !ASS_TMySQL3_DB then 
 		d,e = tmysql.initialize(ASS_MySQLInfo.IP, ASS_MySQLInfo.User, ASS_MySQLInfo.Pass, ASS_MySQLInfo.DB, ASS_MySQLInfo.Port)
@@ -114,8 +114,8 @@ function PLUGIN.PlayerBan(admin, pl, time, reason)
 	bt[pl:SteamID64()].Name = pl:Nick()
 	bt[pl:SteamID64()].AdminName = admin:Nick()
 	bt[pl:SteamID64()].AdminID = admin:SteamID64()
-	bt[pl:SteamID64()].UnbanTime = os.time()+(tonumber(time)*60) --no more source magic minute, writeid bullshit
-	bt[pl:SteamID64()].Reason = reason
+	bt[pl:SteamID64()].UnbanTime = os.time()+(tonumber(time)*60)
+	bt[pl:SteamID64()].Reason = reason or "no reason"
 
 	if d then
 		tmysql.query("INSERT INTO ass_bans (id,name,unbantime,reason,adminname,adminid) VALUES("..pl:SteamID64()..",'"..tmysql.escape(pl:Nick()).."',"..os.time()+(tonumber(time)*60)..",'"..tmysql.escape(reason).."','"..tmysql.escape(admin:Nick()).."',"..admin:SteamID64()..") ON DUPLICATE KEY UPDATE name='"..tmysql.escape(pl:Nick()).."',unbantime="..os.time()+(tonumber(time)*60)..",reason='"..tmysql.escape(reason).."',adminname='"..tmysql.escape(admin:Nick()).."',adminid="..admin:SteamID64())

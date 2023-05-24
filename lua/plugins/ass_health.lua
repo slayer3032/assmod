@@ -63,7 +63,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_GiveTakeHealth", PLUGIN.GiveTakeHealth)
+	concommand.Add("ass_givetakehealth", PLUGIN.GiveTakeHealth)
 	
 	function PLUGIN.GiveTakeArmor( PLAYER, CMD, ARGS )
 
@@ -114,7 +114,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_GiveTakeArmor", PLUGIN.GiveTakeArmor)
+	concommand.Add("ass_givetakearmor", PLUGIN.GiveTakeArmor)
 
 end
 

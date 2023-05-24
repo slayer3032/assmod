@@ -117,7 +117,7 @@ if (SERVER) then
 		end
 		
 	end
-	concommand.Add("ASS_SetDefaultNoClipPriv", PLUGIN.SetDefaultNoclip)
+	concommand.Add("ass_setdefaultnoclippriv", PLUGIN.SetDefaultNoclip)
 	
 	function PLUGIN.NoclipPriv( PLAYER, CMD, ARGS )
 
@@ -171,7 +171,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_SetNoClipPriv", PLUGIN.NoclipPriv)
+	concommand.Add("ass_setnoclippriv", PLUGIN.NoclipPriv)
 
 end
 

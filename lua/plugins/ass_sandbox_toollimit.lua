@@ -273,7 +273,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_GetToolAllowed", PLUGIN.SendAllowedList)
+	concommand.Add("ass_gettoolallowed", PLUGIN.SendAllowedList)
 	
 	function PLUGIN.SetAllowedValue(PLAYER, CMD, ARGS)
 		if (PLAYER:HasAssLevel(ASS_LVL_SUPER_ADMIN)) then
@@ -335,7 +335,7 @@ if (SERVER) then
 			ASS_MessagePlayer( PLAYER, "Access denied!")
 		end
 	end
-	concommand.Add("ASS_ToolAllowed", PLUGIN.SetAllowedValue)
+	concommand.Add("ass_toolallowed", PLUGIN.SetAllowedValue)
 
 end
 

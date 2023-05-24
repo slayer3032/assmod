@@ -88,7 +88,7 @@ if (SERVER) then
 		end
 		
 	end
-	concommand.Add("ASS_GiveItem", PLUGIN.GiveItem)
+	concommand.Add("ass_giveitem", PLUGIN.GiveItem)
 
 	function PLUGIN.SpawnItem( PLAYER, CMD, ARGS )
 
@@ -126,7 +126,7 @@ if (SERVER) then
 		end
 		
 	end
-	concommand.Add("ASS_SpawnItem", PLUGIN.SpawnItem)
+	concommand.Add("ass_spawnitem", PLUGIN.SpawnItem)
 
 	function PLUGIN.StripWeapons( PLAYER, CMD, ARGS )
  		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -150,7 +150,7 @@ if (SERVER) then
 
 		end
 	end
-	concommand.Add("ASS_StripWeapons", PLUGIN.StripWeapons)
+	concommand.Add("ass_stripweapons", PLUGIN.StripWeapons)
 
 	function PLUGIN.StripAllWeapons( PLAYER, CMD, ARGS )
 		// Simple check: Is the player a temporary admin or above?
@@ -183,7 +183,7 @@ if (SERVER) then
 
 		end
 	end
-	concommand.Add("ASS_StripAllWeapons", PLUGIN.StripAllWeapons)
+	concommand.Add("ass_stripallweapons", PLUGIN.StripAllWeapons)
 
 end
 

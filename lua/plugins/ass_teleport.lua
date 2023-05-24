@@ -44,7 +44,7 @@ if SERVER then
 			ASS_MessagePlayer( PLAYER, "Access denied!" )
 		end
 	end
-	concommand.Add( "ASS_TeleportPlayer", PLUGIN.TeleportPlayer )
+	concommand.Add("ass_teleportplayer", PLUGIN.TeleportPlayer )
 
 	ASS_NewLogLevel("ASS_ACL_GOTO")
 	function PLUGIN.GotoPlayer( PLAYER, CMD, ARGS )
@@ -98,7 +98,7 @@ if SERVER then
 			ASS_MessagePlayer( PLAYER, "Access denied!" )
 		end
 	end
-	concommand.Add( "ASS_GotoPlayer", PLUGIN.GotoPlayer )
+	concommand.Add("ass_gotoplayer", PLUGIN.GotoPlayer )
 
 	ASS_NewLogLevel("ASS_ACL_BRING")
 	function PLUGIN.BringPlayer( PLAYER, CMD, ARGS )
@@ -153,7 +153,7 @@ if SERVER then
 			ASS_MessagePlayer( PLAYER, "Access denied!" )
 		end
 	end
-	concommand.Add( "ASS_BringPlayer", PLUGIN.BringPlayer )
+	concommand.Add("ass_bringplayer", PLUGIN.BringPlayer )
 end
 
 if CLIENT then

@@ -36,7 +36,7 @@ if (SERVER) then
 			ASS_MessagePlayer( PLAYER, "Access denied!")
 		end
 	end
-	concommand.Add("ASS_KillPlayer", PLUGIN.KillPlayer)
+	concommand.Add("ass_killplayer", PLUGIN.KillPlayer)
 	
 	function PLUGIN.RespawnPlayer( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -61,7 +61,7 @@ if (SERVER) then
 			ASS_MessagePlayer( PLAYER, "Access denied!")
 		end
 	end
-	concommand.Add("ASS_RespawnPlayer", PLUGIN.RespawnPlayer)
+	concommand.Add("ass_respawnplayer", PLUGIN.RespawnPlayer)
 	
 	function PLUGIN.RocketPlayer( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -104,7 +104,7 @@ if (SERVER) then
 			ASS_MessagePlayer( PLAYER, "Access denied!")
 		end
 	end
-	concommand.Add("ASS_RocketPlayer", PLUGIN.RocketPlayer)
+	concommand.Add("ass_rocketplayer", PLUGIN.RocketPlayer)
 	
 	function PLUGIN.ExplodePlayer( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -141,7 +141,7 @@ if (SERVER) then
 			ASS_MessagePlayer( PLAYER, "Access denied!")
 		end
 	end
-	concommand.Add("ASS_ExplodePlayer", PLUGIN.ExplodePlayer)
+	concommand.Add("ass_explodeplayer", PLUGIN.ExplodePlayer)
 end
 
 if (CLIENT) then

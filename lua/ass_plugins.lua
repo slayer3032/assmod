@@ -168,7 +168,7 @@ function ASS_LoadPlugins( DIR )
 end
 
 if SERVER then
-	concommand.Add("ASS_SetBanlistPlugin",
+	concommand.Add("ass_setbanlistplugin",
 	function(PL,CMD,ARGS)
 		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			local Name = ARGS[1] or "Default Banlist"
@@ -196,7 +196,7 @@ if SERVER then
 			ASS_MessagePlayer(PL, "Access denied!");
 		end
 	end)
-	concommand.Add("ASS_SetWriterPlugin",
+	concommand.Add("ass_setwriterplugin",
 	function(PL,CMD,ARGS)
 		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			local Name = ARGS[1] or "Default Writer"
@@ -224,7 +224,7 @@ if SERVER then
 			ASS_MessagePlayer(PL, "Access denied!");
 		end
 	end)
-	concommand.Add("ASS_SetLoggerPlugin",
+	concommand.Add("ass_setloggerplugin",
 	function(PL,CMD,ARGS)
 		if (PL:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			local Name = ARGS[1] or "Default Logger"

@@ -47,7 +47,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_Freeze", PLUGIN.Freeze)
+	concommand.Add("ass_freeze", PLUGIN.Freeze)
 
 	function PLUGIN.UnFreeze( PLAYER, CMD, ARGS )
 
@@ -72,7 +72,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_UnFreeze", PLUGIN.UnFreeze)
+	concommand.Add("ass_unfreeze", PLUGIN.UnFreeze)
 
 end
 

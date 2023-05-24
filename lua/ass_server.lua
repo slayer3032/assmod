@@ -47,7 +47,7 @@ function CONSOLE:GetAssAttribute(NAME, TYPE, DEFAULT)		end
 function CONSOLE:SetTAExpiry(TIME)				end
 function CONSOLE:Hurt(AMT)					end
 function CONSOLE:Nick()			if (!self:IsValid()) then return "Console"	end end
-function CONSOLE:PrintMessage(LOC, MSG)		if (LOC == HUD_PRINTCONSOLE || LOC == HUD_PRINTNOTIFY) then Msg(MSG) end end
+function CONSOLE:PrintMessage(LOC, MSG)		if (LOC == HUD_PRINTCONSOLE || LOC == HUD_PRINTNOTIFY) then MsgN(MSG) end end
 function CONSOLE:ChatPrint(MSG)				end
 CONSOLE = nil
 
@@ -252,8 +252,12 @@ function ASS_FullNickLog( PLAYER )
 	return "\'" .. PLAYER:Nick() .. "\' (" .. PLAYER:SteamID() .. " | "..PLAYER:SteamID64().." | " .. PLAYER:IPAddress() .. ")"
 end
 
-function ASS_MessagePlayer( PLAYER, MESSAGE )
-	chat.AddText(PLAYER, Color(0, 229, 238), MESSAGE)
+function ASS_MessagePlayer(PLAYER, MESSAGE)
+	if IsValid(PLAYER) then
+		chat.AddText(PLAYER, Color(0, 229, 238), MESSAGE)
+	else
+		MsgN(MESSAGE)
+	end
 end
 
 function ASS_TellPlayers( PLAYER, ACL, ACTION, BYPASS)

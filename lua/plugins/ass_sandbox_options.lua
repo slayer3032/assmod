@@ -48,7 +48,7 @@ if (SERVER) then
 			umsg.End()
 		end
 	end
-	concommand.Add("ASS_SandboxReadOptions", PLUGIN.RetrieveOptions)
+	concommand.Add("ass_sandboxreadoptions", PLUGIN.RetrieveOptions)
 
 	function PLUGIN.ChangeOption( PLAYER, CMD, ARGS )
 	
@@ -65,7 +65,7 @@ if (SERVER) then
 		end
 	
 	end
-	concommand.Add("ASS_SandboxChangeOption", PLUGIN.ChangeOption)
+	concommand.Add("ass_sandboxchangeoption", PLUGIN.ChangeOption)
 
 	function PLUGIN.PlayerInitialized(PLAYER)
 		PLUGIN.RetrieveOptions(PL, "ASS_SandboxReadOptions", {} )

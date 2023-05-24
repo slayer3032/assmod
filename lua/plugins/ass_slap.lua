@@ -79,7 +79,7 @@ if (SERVER) then
 		end
 		
 	end
-	concommand.Add("ASS_SlapPlayer", PLUGIN.SlapPlayer)
+	concommand.Add("ass_slapplayer", PLUGIN.SlapPlayer)
 
 end
 

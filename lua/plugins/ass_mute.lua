@@ -36,7 +36,7 @@ if (SERVER) then
 			end
 		end
 	end
-	concommand.Add("ASS_Mute", PLUGIN.Mute)
+	concommand.Add("ass_mute", PLUGIN.Mute)
 
 	function PLUGIN.UnMute( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -53,7 +53,7 @@ if (SERVER) then
 			end
 		end
 	end
-	concommand.Add("ASS_Unmute", PLUGIN.UnMute)
+	concommand.Add("ass_unmute", PLUGIN.UnMute)
 
 	hook.Add("PlayerSay", "PlayerSay_" .. PLUGIN.Filename, function(ply, msg)
 		if ply.ChatMuted then return "" end
@@ -82,7 +82,7 @@ if (SERVER) then
 			end
 		end
 	end
-	concommand.Add("ASS_Gag", PLUGIN.Gag)
+	concommand.Add("ass_gag", PLUGIN.Gag)
 
 	function PLUGIN.UnGag( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -99,7 +99,7 @@ if (SERVER) then
 			end
 		end
 	end
-	concommand.Add("ASS_Ungag", PLUGIN.UnGag)
+	concommand.Add("ass_ungag", PLUGIN.UnGag)
 
 	hook.Add("PlayerCanHearPlayersVoice", "PlayerCanHearPlayersVoice_" .. PLUGIN.Filename, function(listener, talker)
 		if !IsValid(talker) then return end

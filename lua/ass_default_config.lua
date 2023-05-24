@@ -13,9 +13,8 @@ if CLIENT then
 
 		{	name = "(none)", 	reason = ""				},
 		{	name = "Spamming",	reason = "Spamming"		},
-		{	name = "Asshole",	reason = "Asshole"		},
+		{	name = "Racism",	reason = "Racism"		},
 		{	name = "Mingebag",	reason = "Mingebag"		},
-		{	name = "General Idiot",	reason = "General Idiot"	},
 
 	}
 

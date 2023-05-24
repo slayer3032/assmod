@@ -40,7 +40,7 @@ if (SERVER) then
 		end
 	end)
 	
-	concommand.Add("ASS_SetAlltalk",function(PLAYER, CMD, ARGS)
+	concommand.Add("ass_setalltalk",function(PLAYER, CMD, ARGS)
 		if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			if (!tobool(ARGS[1])) then
 				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "turned alltalk voice off")
@@ -60,7 +60,7 @@ if (SERVER) then
 	end
 	)
 	
-	concommand.Add("ASS_SetProxtalk",function(PLAYER, CMD, ARGS)
+	concommand.Add("ass_setproxtalk",function(PLAYER, CMD, ARGS)
 		if (PLAYER:HasAssLevel(ASS_LVL_SERVER_OWNER)) then
 			if (!tobool(ARGS[1])) then
 				ASS_LogAction( PLAYER, ASS_ACL_SETTING, "turned proximity voice off")

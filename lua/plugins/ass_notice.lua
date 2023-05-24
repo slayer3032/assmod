@@ -166,7 +166,7 @@ if (SERVER) then
 		
 		end
 	end
-	concommand.Add("ASS_AddFixedNotice", PLUGIN.AddFixedNotice)
+	concommand.Add("ass_addfixednotice", PLUGIN.AddFixedNotice)
 
 	function PLUGIN.AddNotice( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -180,7 +180,7 @@ if (SERVER) then
 		
 		end
 	end
-	concommand.Add("ASS_AddNotice", PLUGIN.AddNotice)
+	concommand.Add("ass_addnotice", PLUGIN.AddNotice)
 	
 	function PLUGIN.ListAllNotices( PLAYER, CMD, ARGS)
 		ASS_SendNoticesRaw(PLAYER)	
@@ -188,7 +188,7 @@ if (SERVER) then
 		umsg.Start("ASS_RemoveNoticeGUI", PLAYER)
 		umsg.End()
 	end
-	concommand.Add("ASS_ListAllNotices", PLUGIN.ListAllNotices)
+	concommand.Add("ass_listallnotices", PLUGIN.ListAllNotices)
 
 	function PLUGIN.RemoveNotice( PLAYER, CMD, ARGS )
 		if (PLAYER:HasAssLevel(ASS_LVL_TEMPADMIN)) then
@@ -201,7 +201,7 @@ if (SERVER) then
 			
 		end
 	end
-	concommand.Add("ASS_RemoveNotice", PLUGIN.RemoveNotice)
+	concommand.Add("ass_removenotice", PLUGIN.RemoveNotice)
 end
 
 if (CLIENT) then
@@ -253,7 +253,7 @@ if (CLIENT) then
 			NoticePanel:SetVisible( ASS_ShouldShowNoticeBar() )
 		end
 	end
-	concommand.Add("ASS_ToggleNoticeBar", ASS_ToggleNoticeBar)
+	concommand.Add("ass_togglenoticebar", ASS_ToggleNoticeBar)
 
 	usermessage.Hook( "ASS_NamedNotice", 
 			function(UM)

@@ -53,7 +53,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_God", PLUGIN.God)
+	concommand.Add("ass_god", PLUGIN.God)
 
 end
 

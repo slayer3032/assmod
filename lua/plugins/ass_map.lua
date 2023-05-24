@@ -29,7 +29,7 @@ if (SERVER) then
 			net.WriteTable(allMaps)
 		net.Send(PLAYER)
 	end
-	concommand.Add("ASS_RefreshMapList", PLUGIN.RefreshMapList)
+	concommand.Add("ass_refreshmaplist", PLUGIN.RefreshMapList)
 	
 	function PLUGIN.PlayerInitialized(PLAYER)
 		PLUGIN.RefreshMapList(PLAYER)

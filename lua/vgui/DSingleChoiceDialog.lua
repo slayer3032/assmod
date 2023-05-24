@@ -37,7 +37,7 @@ function PANEL:PerformLayout()
 	self.lblTitle:SetSize( self:GetWide() - 25, 20 )
 	--end
 
-	self.List:SetTall(200)
+	self.List:SetTall(ScrH()*0.6)
 	
 	self.CancelButton:SizeToContents()
 	self.CancelButton:SetWide(self.CancelButton:GetWide() + 16)
@@ -88,7 +88,7 @@ function PromptForChoice( TITLE, SELECTION, FUNCTION, ... )
 	end
 	TE:SetTitle(TITLE)
 	TE:SetVisible( true )
-	TE:SetWide(300)
+	TE:SetWide(ScrW()*0.6)
 	TE:PerformLayout()
 	TE:Center()
 	TE:MakePopup()

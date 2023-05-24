@@ -44,7 +44,7 @@ if (SERVER) then
 		end
 
 	end
-	concommand.Add("ASS_SetTeam", PLUGIN.SetTeam)
+	concommand.Add("ass_setteam", PLUGIN.SetTeam)
 
 end
 

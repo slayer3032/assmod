@@ -58,7 +58,7 @@ if (SERVER) then
 		umsg.End()
 
 	end
-	concommand.Add("ASS_SandboxRetrieveLimits", PLUGIN.RetrieveLimits)
+	concommand.Add("ass_sandboxretrievelimits", PLUGIN.RetrieveLimits)
 
 	function PLUGIN.ChangeLimit( PLAYER, CMD, ARGS )
 	
@@ -80,7 +80,7 @@ if (SERVER) then
 		end
 	
 	end
-	concommand.Add("ASS_SandboxChangeLimit", PLUGIN.ChangeLimit)
+	concommand.Add("ass_sandboxchangelimit", PLUGIN.ChangeLimit)
 
 end
 

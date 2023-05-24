@@ -2,7 +2,7 @@ local PLUGIN = {}
 
 PLUGIN.Name = "Default Logger"
 PLUGIN.Author = "Slayer3032"
-PLUGIN.Date = "01st May 2015"
+PLUGIN.Date = "23rd May 2023"
 PLUGIN.Filename = PLUGIN_FILENAME
 PLUGIN.ClientSide = false
 PLUGIN.ServerSide = true
@@ -13,7 +13,7 @@ function PLUGIN.AddToLog(PLAYER, ACL, ACTION)
 	if (ASS_Config["logger"] != PLUGIN.Name) then return end
 	
 	local fn = "assmod/logs/"..ACL..".txt"
-    local fno = "assmod/logs/archive/"..ACL.."_"..os.date("%d-%m-%Y")..".txt"
+    local fno = "assmod/logs/archive/"..ACL.."_"..os.date("%m-%d-%Y")..".txt"
 	local log = ""
 	
 	if (file.Exists(fn, "DATA")) then
@@ -21,11 +21,11 @@ function PLUGIN.AddToLog(PLAYER, ACL, ACTION)
 		
 		if (#log > 80000) then
             file.Write(fno, log)
-			log = "Logs cleared on "..os.date("%d-%m-%Y").."!\n"
+			log = "Logs cleared on "..os.date("%m-%d-%Y").."!\n"
 		end
 	end
 	
-	log = log .. os.date("%d/%m/%Y - %H:%M:%S" , os.time()) .. ": " .. ASS_FullNickLog(PLAYER) .. " -> " .. ACTION .. "\n"
+	log = log .. os.date("%m/%d/%Y - %H:%M:%S" , os.time()) .. ": " .. ASS_FullNickLog(PLAYER) .. " -> " .. ACTION .. "\n"
 	
 	file.Write(fn, log)
 end

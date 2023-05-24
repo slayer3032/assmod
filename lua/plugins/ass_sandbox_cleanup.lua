@@ -51,7 +51,7 @@ if (SERVER) then
 
 		end
 	end
-	concommand.Add("ASS_Cleanup", PLUGIN.Cleanup)
+	concommand.Add("ass_cleanup", PLUGIN.Cleanup)
 	
 	function PLUGIN.CleanupMap(PLAYER, CMD, ARGS)
 
@@ -62,7 +62,7 @@ if (SERVER) then
 			ASS_MessagePlayer( PLAYER, "Access denied!")
 		end
 	end
-	concommand.Add("ASS_CleanupMap", PLUGIN.CleanupMap)
+	concommand.Add("ass_cleanupmap", PLUGIN.CleanupMap)
 	
 end
 

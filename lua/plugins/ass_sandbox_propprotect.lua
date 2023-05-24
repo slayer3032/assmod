@@ -392,7 +392,7 @@ if (SERVER) then
 		end
 	
 	end
-	concommand.Add("ASS_PropProtect", PLUGIN.PropProtectMode)
+	concommand.Add("ass_propprotect", PLUGIN.PropProtectMode)
 
 	function PLUGIN.PropProtectAllowAdmins(PLAYER, CMD, ARGS)
 	
@@ -414,21 +414,21 @@ if (SERVER) then
 		end
 	
 	end
-	concommand.Add("ASS_PropProtectAllowAdmins", PLUGIN.PropProtectAllowAdmins)
+	concommand.Add("ass_propprotectallowadmins", PLUGIN.PropProtectAllowAdmins)
 
 	function PLUGIN.AddBuddy(PLAYER, CMD, ARGS)
 		local uid = table.concat(ARGS, "")
 		PLAYER.PropProtectionBuddies = PLAYER.PropProtectionBuddies or {}
 		PLAYER.PropProtectionBuddies[ uid ] = true
 	end
-	concommand.Add("ASS_PropProtectAddBuddy", PLUGIN.AddBuddy)
+	concommand.Add("ass_propprotectaddbuddy", PLUGIN.AddBuddy)
 	
 	function PLUGIN.RemoveBuddy(PLAYER, CMD, ARGS)
 		local uid = table.concat(ARGS, "")
 		PLAYER.PropProtectionBuddies = PLAYER.PropProtectionBuddies or {}
 		PLAYER.PropProtectionBuddies[ uid ] = nil
 	end
-	concommand.Add("ASS_PropProtectRemoveBuddy", PLUGIN.RemoveBuddy)
+	concommand.Add("ass_propprotectremovebuddy", PLUGIN.RemoveBuddy)
 	
 end
 
@@ -486,7 +486,7 @@ if (CLIENT) then
 			PLUGIN.ShowBuddyList( CP )
 		end
 	end
-	concommand.Add("ASS_PropProtectAddBuddy_CL", function(PL,CMD,ARGS) PLUGIN.CCBuddyAdd( table.concat(ARGS, "") ) end )
+	concommand.Add("ass_propprotectaddbuddy_cl", function(PL,CMD,ARGS) PLUGIN.CCBuddyAdd( table.concat(ARGS, "") ) end )
 	
 	function PLUGIN.CCBuddyRemove(ID)
 		RunConsoleCommand("ASS_PropProtectRemoveBuddy", ID)
@@ -505,7 +505,7 @@ if (CLIENT) then
 			PLUGIN.ShowBuddyList( CP )
 		end
 	end
-	concommand.Add("ASS_PropProtectRemoveBuddy_CL", function(PL,CMD,ARGS) PLUGIN.CCBuddyRemove( table.concat(ARGS, "") ) end )
+	concommand.Add("ass_propprotectremovebuddy_cl", function(PL,CMD,ARGS) PLUGIN.CCBuddyRemove( table.concat(ARGS, "") ) end )
 	
 	
 	function PLUGIN.BuddyRemove(MENUITEM)

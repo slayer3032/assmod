@@ -39,12 +39,18 @@ function ASS_SetLevel(pl, level, time)
 end
 
 function ASS_CustomReason(INFO)
+	local nick = INFO.Name or "no name"
+
+	if IsValid(INFO.Player) then nick = INFO.Player:Nick() end
+
 	PromptStringRequest( "Custom Reason...",
-		"Why do you want to " .. INFO.Type .. " " .. INFO.Player:Nick() .. "?", 
+		"Why do you want to " .. INFO.Type .. " " .. nick .. "?", 
 		"", 
 		function( strTextOut ) 
-			table.insert(ASS_Config["reasons"], 	{	name = strTextOut,	reason = strTextOut		} )
-			ASS_WriteConfig()
+			if INFO.Type != "unban" then
+				table.insert(ASS_Config["reasons"], 	{	name = strTextOut,	reason = strTextOut		} )
+				ASS_WriteConfig()
+			end
 		
 			INFO.Reason = strTextOut
 			INFO.Function(INFO)
@@ -505,14 +511,19 @@ end
 function ASS_ShowUnbanList()
 	local tblbans = net.ReadTable()
 	for k,v in pairs(tblbans) do
-		name = v.Name .. " (" .. util.SteamIDFrom64(k) .. ") *"..v.AdminName.."*"
-		table.insert( ASS_BannedPlayers, {Text = name, ID = k} )
+		name = v.Name.."("..k.."|"..util.SteamIDFrom64(k)..") Reason:"..v.Reason.." - *"..v.AdminName.."*"
+		table.insert( ASS_BannedPlayers, {Text = name, ID = k, Name = v.Name, Reason = v.Reason} )
 	end
 	PromptForChoice( "Unban a player...", ASS_BannedPlayers, 
 		function (DLG, ITEM)
-			
-			net.Start('ass_unbanplayer') net.WriteString(ITEM.ID) net.SendToServer()
-			DLG:RemoveItem(DLG.Selection)
+			local INFO = {}
+			INFO.Type = "unban"
+			INFO.Name = ITEM.Name
+			INFO.Reason = ITEM.Reason
+			INFO.ID = ITEM.ID
+			INFO.dlg = DLG
+			INFO.Function = function(data) net.Start('ass_unbanplayer') net.WriteString(data.ID) net.WriteString(data.Reason or "no reason") net.SendToServer() data.dlg:RemoveItem(data.dlg.Selection) end
+			ASS_CustomReason(INFO)
 		
 		end
 	)
@@ -584,8 +595,8 @@ end
 function ASS_Initialize()
 	if (ASS_Initialized) then return end
 
-	concommand.Add("+ASS_Menu", ASS_ShowMenu)
-	concommand.Add("-ASS_Menu", ASS_HideMenu)
+	concommand.Add("+ass_menu", ASS_ShowMenu)
+	concommand.Add("-ass_menu", ASS_HideMenu)
 	
 	ASS_Init_Shared()
 	net.Start('ass_initialize') net.SendToServer()

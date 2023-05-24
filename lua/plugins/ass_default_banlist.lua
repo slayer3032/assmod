@@ -2,7 +2,7 @@ local PLUGIN = {}
 
 PLUGIN.Name = "Default Banlist"
 PLUGIN.Author = "Andy Vincent, Slayer3032"
-PLUGIN.Date = "22nd May 2023"
+PLUGIN.Date = "23rd May 2023"
 PLUGIN.Filename = PLUGIN_FILENAME
 PLUGIN.ClientSide = false
 PLUGIN.ServerSide = true
@@ -17,6 +17,7 @@ local function dropreason(name, time, reason)
 	end
 end
 
+local firstrun = true
 function PLUGIN.LoadBanlist()
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	if !file.Exists("assmod/bans/players.txt", "DATA") then file.Write("assmod/bans/players.txt", "") return end
@@ -37,6 +38,11 @@ function PLUGIN.LoadBanlist()
 		bt[v.ID].AdminID = v.AdminID
 		bt[v.ID].UnbanTime = v.UnbanTime
 		bt[v.ID].Reason	= v.Reason
+	end
+
+	if firstrun then
+		Msg("ASS Banlist -> Loaded "..table.Count(bt).." entries into the banlist.\n")
+		firstrun = false
 	end
 end
 
@@ -92,7 +98,7 @@ function PLUGIN.PlayerBan(admin, pl, time, reason)
 	PlayerBans[pl:AssID()].Name = pl:Nick()
 	PlayerBans[pl:AssID()].AdminName = admin:Nick()
 	PlayerBans[pl:AssID()].AdminID = admin:SteamID64()
-	PlayerBans[pl:AssID()].UnbanTime = bantime --no more source magic minute, writeid bullshit
+	PlayerBans[pl:AssID()].UnbanTime = bantime
 	PlayerBans[pl:AssID()].Reason = reason or "no reason"
 
 	PLUGIN.SaveBanlist()
@@ -121,11 +127,17 @@ end
 
 function PLUGIN.CheckPlayer(id)
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
-	if ASS_GetBanTable()[id] then
-		local btbl = ASS_GetBanTable()[id]
+	local btbl = PLUGIN.CheckBanlist(id)
+
+	if btbl then
 		if btbl.UnbanTime > os.time() or btbl.UnbanTime == 0 then
 			print("ASS Banlist -> Player ban loaded for "..btbl.Name.."("..id.."), dropping client...")
 			ASS_DropClient(util.SteamIDFrom64(id), dropreason(btbl.Name, btbl.UnbanTime, btbl.Reason))
+
+			local pl = ASS_FindPlayer(id) --just in case id is not a id64
+			if IsValid(pl) then
+				ASS_DropClient(pl:UserID(), dropreason(btbl.Name, btbl.UnbanTime, btbl.Reason))
+			end
 		else
 			PLUGIN.PlayerUnban(id)
 		end
@@ -148,8 +160,8 @@ end
 function PLUGIN.Registered()
 	if (ASS_Config["banlist"] != PLUGIN.Name) then return end
 	hook.Add("CheckPassword", "ASS_CheckPassword", PLUGIN.CheckPassword)
-	hook.Add("Initialize", "ASS_LoadBanlist", PLUGIN.LoadBanlist)
-	hook.Add("PlayerInitialSpawn", "ASS_SpawnBanCheck", function(pl) PLUGIN.CheckPlayer(pl:SteamID64()) end)
+	hook.Add("PlayerInitialSpawn", "ASS_SpawnBanCheck", function(pl) PLUGIN.CheckPlayer(pl:AssID()) end)
+	PLUGIN.LoadBanlist()
 end
 
 ASS_RegisterPlugin(PLUGIN)
